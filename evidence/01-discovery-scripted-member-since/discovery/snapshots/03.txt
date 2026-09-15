@@ -1,0 +1,12 @@
+FRAME banner  route=/cgi/BANNER
+  text "FAKEBANK CORE R3.2"
+  text "15:52:38"
+FRAME nav  route=/cgi/NAV
+  row: [e1] link "MAIN MENU"
+  row: [e2] link "MEMBER INQ"
+  row: [e3] link "REPORTS"
+  row: [e4] link "ADMIN"
+  row: [e5] link "SIGN OFF"
+FRAME main  route=/cgi/MBRINQ
+  heading "MEMBER INQUIRY"
+  row: "MEMBER #" | [e6] textbox label="MEMBER #" value="{{value_1}}" | [e7] button "GO"

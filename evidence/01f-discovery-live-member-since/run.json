@@ -1,0 +1,39 @@
+{
+  "run_id": "disc_20260915_153524_8a4c",
+  "kind": "discovery",
+  "duration_ms": 20299,
+  "llm_usage": {
+    "calls": 5,
+    "input_tokens": 16587,
+    "output_tokens": 458,
+    "cost_usd": 0.094385
+  },
+  "goal": "When did member {{value_1}} become a member?",
+  "status": "completed",
+  "code": null,
+  "message": "Member since date extracted: 09/02/2016",
+  "capability_name": "get_member_since_date",
+  "target": "http://127.0.0.1:8700",
+  "product": "fakebank-core",
+  "planner": {
+    "provider": "anthropic",
+    "model": "claude-opus-5"
+  },
+  "inputs": [
+    {
+      "placeholder": "value_1",
+      "kind": "digits",
+      "explicit_name": null,
+      "explicit_type": null
+    }
+  ],
+  "declared_outputs": {},
+  "extracted": {
+    "member_since": {
+      "type": "date",
+      "columns": null,
+      "classification": "internal",
+      "target": "value next to \"MEMBER SINCE\" [main]"
+    }
+  }
+}

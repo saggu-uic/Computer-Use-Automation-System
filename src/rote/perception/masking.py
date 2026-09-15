@@ -196,10 +196,11 @@ class Masker:
             for sub in cell:
                 kind = sub.get("type")
                 if kind == "text":
+                    ref = f"[{sub['ref']}] " if sub.get("ref") else ""  # a readable field the agent can extract
                     if position > 0 and section in SENSITIVE:
-                        bits.append(f"(untrusted page text) {self.mask_by_class(sub['text'], section)}")
+                        bits.append(f"{ref}(untrusted page text) {self.mask_by_class(sub['text'], section)}")
                     else:
-                        bits.append(f'"{self.mask_text(sub["text"])}"')
+                        bits.append(f'{ref}"{self.mask_text(sub["text"])}"')
                 elif kind == "control":
                     node = snap.elements.get(sub["ref"])
                     if node:

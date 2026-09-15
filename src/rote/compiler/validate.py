@@ -34,6 +34,8 @@ async def validate_capability(
     passed = len(results) == 2 and all(r.status == "success" for r in results)
     if passed:
         cap.status = "validated"
+        # an earlier failed attempt is superseded by this successful validation
+        cap.provenance.review_flags = [f for f in cap.provenance.review_flags if not f.startswith("validation did not pass")]
     else:
         cap.status = "draft"
         detail = " · ".join(f"{r.invocation_id}: {r.status}{' ' + r.error.code if r.error else ''}" for r in results)

@@ -1,6 +1,6 @@
 FRAME banner  route=/cgi/BANNER
   text "FAKEBANK CORE R3.2"
-  text "12:55:58"
+  text "15:53:41"
 FRAME nav  route=/cgi/NAV
   row: [e1] link "MAIN MENU"
   row: [e2] link "MEMBER INQ"
@@ -9,13 +9,13 @@ FRAME nav  route=/cgi/NAV
   row: [e5] link "SIGN OFF"
 FRAME main  route=/cgi/MBRDTL?m={{member_number}}
   heading "MEMBER DETAIL {{member_number}} «NAME_1»"
-  row: "TAX ID" | (untrusted page text) «TEXT_1»
-  row: "MEMBER SINCE" | "03/14/2011"
+  row: "TAX ID" | [e22] (untrusted page text) «TEXT_1»
+  row: "MEMBER SINCE" | [e23] "03/14/2011"
   [e13] TABLE "SHARE ACCOUNTS"  columns: TYPE | SHARE ID | BALANCE | STATUS
      row 1: [e14] "REGULAR SAVINGS" | [e15] «ACCT_1» | [e16] «MONEY_1» | [e17] "ACTIVE" | [e6] button "CLOSE SHARE"
      row 2: [e18] "SHARE DRAFT" | [e19] «ACCT_2» | [e20] «MONEY_2» | [e21] "ACTIVE" | [e7] button "CLOSE SHARE"
   row: [e8] button "TRANS HIST" | [e9] button "NEW INQUIRY"
-  row: "MEMBER NOTES" | (untrusted page text) «TEXT_2»
+  row: "MEMBER NOTES" | [e24] (untrusted page text) «TEXT_2»
   DIALOG "SUPERVISOR OVERRIDE REQUIRED" {
     row: "SUPERVISOR OVERRIDE REQUIRED"
     row: "SUPERVISOR PASSWORD" | [e10] textbox label="SUPERVISOR PASSWORD" (password)

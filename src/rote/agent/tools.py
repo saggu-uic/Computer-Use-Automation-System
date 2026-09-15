@@ -66,8 +66,9 @@ TOOLS: list[dict[str, Any]] = [
     {
         "name": "extract",
         "description": (
-            "Read data for the caller. Target a table cell (ref of the cell) for a single value, or a whole "
-            "table (ref of the TABLE) for a list. Rote reads the real value; you only choose where it is."
+            "Read data for the caller. For a single value target a table cell or the value next to a label "
+            "(the ref shown on that value); for a list target a whole table (ref of the TABLE). "
+            "Rote reads the real value; you only choose where it is."
         ),
         "parameters": {
             "type": "object",

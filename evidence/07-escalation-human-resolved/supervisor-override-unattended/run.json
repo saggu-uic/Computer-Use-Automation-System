@@ -1,7 +1,7 @@
 {
-  "run_id": "rep_20260915_125557_1473",
+  "run_id": "rep_20260915_155341_6e95",
   "kind": "replay",
-  "duration_ms": 1527,
+  "duration_ms": 1143,
   "llm_usage": {
     "calls": 0,
     "input_tokens": 0,
@@ -15,7 +15,7 @@
     "member_number": "{{member_number}}"
   },
   "result": {
-    "invocation_id": "rep_20260915_125557_1473",
+    "invocation_id": "rep_20260915_155341_6e95",
     "capability": "fakebank.member.get_savings_balance@1.1.0",
     "content_hash": "sha256:b18a8684c2731716a0c24f063b0c6c8096b8fea0b85d783c001e761ff40e1c36",
     "profile_hash": "sha256:d3898505715a0d8bf4d590cddaa821204c47bdef06ab47336c81d4489c99b348",
@@ -39,11 +39,11 @@
         "snapshot": "failure/snapshot.txt"
       },
       "intervention": {
-        "id": "int_81ec25",
+        "id": "int_da576d",
         "kind": "take_control",
         "reason_code": "SUPERVISOR_OVERRIDE_REQUIRED",
         "reason": "Only a supervisor can complete this; automation escalates",
-        "screenshot": "interventions/int_81ec25/before.png",
+        "screenshot": "interventions/int_da576d/before.png",
         "resume_expectation": {
           "after_step": "click_go_button",
           "expected_screens": [
@@ -54,7 +54,7 @@
           ],
           "instructions": "Resolve this in the browser window, leave the application on member_detail or member_not_found or invalid_member_number or access_restricted, then press Resume."
         },
-        "created_at": "2026-09-15T17:55:58.878Z"
+        "created_at": "2026-09-15T20:53:41.809Z"
       }
     },
     "recoveries": [],
@@ -63,8 +63,8 @@
     "ui_touched": true,
     "side_effects_possible": false,
     "timing_ms": {
-      "total": 1522
+      "total": 1139
     },
-    "evidence": "runs/rep_20260915_125557_1473"
+    "evidence": "runs/rep_20260915_155341_6e95"
   }
 }

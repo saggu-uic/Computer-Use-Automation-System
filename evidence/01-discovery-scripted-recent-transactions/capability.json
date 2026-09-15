@@ -369,16 +369,16 @@
     "run_max_ms": 90000
   },
   "provenance": {
-    "discovered_from_run": "disc_20260915_125449_1d24",
+    "discovered_from_run": "disc_20260915_155224_bdc9",
     "goal": "Show recent transactions for member {{member_number}}",
     "planner": {
       "provider": "scripted",
       "model": "scripted-recent-transactions"
     },
-    "compiled_at": "2026-09-15T17:54:57Z",
+    "compiled_at": "2026-09-15T20:52:32Z",
     "validated_by_runs": [
-      "val_20260915_125457_973e",
-      "val_20260915_125458_139d"
+      "val_20260915_155232_8b4b",
+      "val_20260915_155233_7363"
     ],
     "content_hash": "sha256:e34efd721c6273de377f4537075ca026314208f7142200480c84355f72e7ebe3"
   }

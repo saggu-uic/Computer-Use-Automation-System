@@ -1,7 +1,7 @@
 {
-  "run_id": "rep_20260915_121958_ed4c",
+  "run_id": "rep_20260915_153604_c755",
   "kind": "replay",
-  "duration_ms": 1348,
+  "duration_ms": 1311,
   "llm_usage": {
     "calls": 0,
     "input_tokens": 0,
@@ -15,7 +15,7 @@
     "member_number": "{{member_number}}"
   },
   "result": {
-    "invocation_id": "rep_20260915_121958_ed4c",
+    "invocation_id": "rep_20260915_153604_c755",
     "capability": "fakebank.member.get_regular_savings_balance@1.0.0",
     "content_hash": "sha256:b96dfcc0863304a5a367f22288ab4012b4c39dd0ece33099cc4be37101d5d82c",
     "profile_hash": "sha256:d3898505715a0d8bf4d590cddaa821204c47bdef06ab47336c81d4489c99b348",
@@ -34,8 +34,8 @@
     "ui_touched": true,
     "side_effects_possible": false,
     "timing_ms": {
-      "total": 1345
+      "total": 1309
     },
-    "evidence": "runs/rep_20260915_121958_ed4c"
+    "evidence": "runs/rep_20260915_153604_c755"
   }
 }

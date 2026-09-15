@@ -19,10 +19,10 @@ from playwright.async_api import (
 from playwright.async_api import Error as PlaywrightError
 
 from rote.models.capability import Locator, Target
-from rote.surface.snapshot import CellNode, ElementNode, FrameView, RowNode, Snapshot, TableNode, fingerprint
+from rote.surface.snapshot import CellNode, ElementNode, FieldNode, FrameView, RowNode, Snapshot, TableNode, fingerprint
 
 WALKER_JS = Path(__file__).with_name("walker.js").read_text(encoding="utf-8")
-LOCATOR_RANK = {"role": 0, "table_cell": 1, "table": 1, "label": 2, "near_text": 3, "text": 4, "css": 9}
+LOCATOR_RANK = {"role": 0, "table_cell": 1, "table": 1, "field": 1, "label": 2, "near_text": 3, "text": 4, "css": 9}
 
 HumanCallback = Callable[[dict[str, Any]], Awaitable[None] | None]
 
@@ -188,6 +188,7 @@ class WebSurface:
         elements: dict[str, ElementNode] = {}
         tables: dict[str, TableNode] = {}
         cells: dict[str, CellNode] = {}
+        fields: dict[str, FieldNode] = {}
         ref_map: dict[str, tuple[Frame, int]] = {}
         counter = 0
         for frame in self._live_frames():
@@ -238,6 +239,9 @@ class WebSurface:
                     ref=tref, frame=name, index=t["index"], name=t["name"], columns=t["columns"],
                     rows=rows, box=t["box"], dialog=t["dialog"],
                 )
+            for f in raw.get("fields", []):
+                fref = new_ref(f["index"])
+                fields[fref] = FieldNode(ref=fref, frame=name, **f)
             frames.append(
                 FrameView(
                     name=name,
@@ -250,7 +254,7 @@ class WebSurface:
             )
         self._ref_map = ref_map
         return Snapshot(
-            frames=frames, elements=elements, tables=tables, cells=cells,
+            frames=frames, elements=elements, tables=tables, cells=cells, fields=fields,
             fingerprint=fingerprint(frames, elements, tables),
         )
 
@@ -522,6 +526,9 @@ def _convert_layout(items: list[dict[str, Any]], index_to_ref: dict[int, str]) -
             out.append({**item, "items": _convert_layout(item["items"], index_to_ref)})
         elif kind == "row":
             out.append({**item, "cells": [_convert_layout(cell, index_to_ref) for cell in item["cells"]]})
+        elif kind == "text" and "field" in item:
+            ref = index_to_ref.get(item["field"])
+            out.append({"type": "text", "text": item["text"], **({"ref": ref} if ref else {})})
         else:
             out.append(item)
     return out

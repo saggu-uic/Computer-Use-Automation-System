@@ -1,6 +1,6 @@
 FRAME banner  route=/cgi/BANNER
   text "FAKEBANK CORE R3.2"
-  text "12:55:35"
+  text "15:53:17"
 FRAME nav  route=/cgi/NAV
   row: [e1] link "MAIN MENU"
   row: [e2] link "MEMBER INQ"
@@ -9,13 +9,13 @@ FRAME nav  route=/cgi/NAV
   row: [e5] link "SIGN OFF"
 FRAME main  route=/cgi/MBRDTL?m={{member_number}}
   heading "MEMBER DETAIL {{member_number}} «NAME_1»"
-  row: "TAX ID" | (untrusted page text) «TEXT_1»
-  row: "MEMBER SINCE" | "03/14/2011"
+  row: "TAX ID" | [e20] (untrusted page text) «TEXT_1»
+  row: "MEMBER SINCE" | [e21] "03/14/2011"
   [e11] TABLE "SHARE ACCOUNTS"  columns: TYPE | SHARE ID | BALANCE | STATUS
      row 1: [e12] "REGULAR SAVINGS" | [e13] «ACCT_1» | [e14] «MONEY_1» | [e15] "ACTIVE" | [e6] button "CLOSE SHARE"
      row 2: [e16] "SHARE DRAFT" | [e17] «ACCT_2» | [e18] «MONEY_2» | [e19] "ACTIVE" | [e7] button "CLOSE SHARE"
   row: [e8] button "TRANS HIST" | [e9] button "NEW INQUIRY"
-  row: "MEMBER NOTES" | (untrusted page text) «TEXT_2»
+  row: "MEMBER NOTES" | [e22] (untrusted page text) «TEXT_2»
   DIALOG "ACCOUNT VERIFICATION PENDING - CALL EXT 4410" {
     row: "ACCOUNT VERIFICATION PENDING - CALL EXT 4410"
     row: [e10] button "CONTINUE"

@@ -72,6 +72,8 @@ def target_name(loc: Locator) -> str:
         return f"{'_'.join(snake(v) for v in (loc.row_where or {}).values())}_{snake(loc.column or '')}_cell"
     if loc.kind == "table":
         return f"{snake(loc.table or '')}_table"
+    if loc.kind == "field":
+        return f"{snake(loc.label or '')}_value"
     if loc.kind == "label":
         return f"{snake(loc.label or '')}_field"
     if loc.kind in ("role", "text"):

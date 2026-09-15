@@ -1,0 +1,39 @@
+{
+  "run_id": "val_20260915_153647_71e5",
+  "kind": "validation",
+  "duration_ms": 1772,
+  "llm_usage": {
+    "calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "capability": "fakebank.member.get_member_since_date@1.0.0",
+  "status": "success",
+  "code": null,
+  "inputs": {
+    "member_number": "{{member_number}}"
+  },
+  "result": {
+    "invocation_id": "val_20260915_153647_71e5",
+    "capability": "fakebank.member.get_member_since_date@1.0.0",
+    "content_hash": "sha256:d6aadf30904a3def882c43ece03a5d7654060a0c743ffc44332521d41ca02327",
+    "profile_hash": "sha256:d3898505715a0d8bf4d590cddaa821204c47bdef06ab47336c81d4489c99b348",
+    "mode": "unattended",
+    "status": "success",
+    "outputs": {
+      "member_since": "2016-09-02"
+    },
+    "outcome": null,
+    "error": null,
+    "recoveries": [],
+    "warnings": [],
+    "interventions": [],
+    "ui_touched": true,
+    "side_effects_possible": false,
+    "timing_ms": {
+      "total": 1769
+    },
+    "evidence": "runs/val_20260915_153647_71e5"
+  }
+}

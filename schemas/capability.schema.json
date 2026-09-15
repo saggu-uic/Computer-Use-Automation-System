@@ -244,6 +244,7 @@
             "near_text",
             "table_cell",
             "table",
+            "field",
             "text",
             "css"
           ],

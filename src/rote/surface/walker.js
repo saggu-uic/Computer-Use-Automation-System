@@ -133,6 +133,20 @@
     return info.columns[Array.from(td.parentElement.cells).indexOf(td)] || null;
   }
 
+  // Label–value rows outside data tables ("TAX ID | 900-00-4321"): the first text cell after the label is a readable field.
+  function fieldOf(td, infos) {
+    if (!td || (td.tagName !== "TD" && td.tagName !== "TH")) return null;
+    const tr = td.parentElement;
+    if (!tr || tr.tagName !== "TR") return null;
+    if (infos.some((info) => info.table === tr.closest("table"))) return null;
+    const cells = Array.from(tr.cells);
+    if (cells.indexOf(td) < 1 || td.querySelector("table")) return null;
+    const label = norm(cellText(cells[0]));
+    if (!label) return null;
+    const first = cells.slice(1).find((c) => !c.querySelector("table") && cellText(c));
+    return first === td ? { label } : null;
+  }
+
   // ---------------- dialogs (overlays, ARIA dialogs) ----------------
   function dialogs() {
     const found = [];
@@ -237,14 +251,21 @@
       })),
     }));
     const tableByEl = new Map(infos.map((info, k) => [info.table, tables[k]]));
+    const fields = [];
+    const regField = (td, label) => {
+      const i = reg(td);
+      fields.push({ index: i, label, text: clean(td.innerText), box: box(td), dialog: dialogOf(td) });
+      return i;
+    };
     const layout = [];
-    if (document.body) walk(document.body, layout, { dlgs, controlIndex, tableByEl });
+    if (document.body) walk(document.body, layout, { dlgs, controlIndex, tableByEl, infos, regField });
     window.__rote.els = els;
     return {
       url: location.href,
       title: document.title,
       elements,
       tables,
+      fields,
       layout,
       headings: headings(),
       dialogs: dlgs.map((d) => ({ text: d.text, title: d.title, box: box(d.el) })),
@@ -295,7 +316,10 @@
           const items = [];
           if (!td.querySelector(STRUCTURE_SEL)) {
             const t = clean(td.innerText);
-            if (t) items.push({ type: "text", text: t });
+            if (t) {
+              const f = fieldOf(td, ctx.infos);
+              items.push(f ? { type: "text", text: t, field: ctx.regField(td, f.label) } : { type: "text", text: t });
+            }
           } else {
             walk(td, items, ctx);
           }
@@ -398,6 +422,14 @@
         }
         if (tabs.length && !rowsFound && !reason) reason = "no_row";
       }
+    } else if (kind === "field") {
+      const want = norm(fill(loc.label, params));
+      matches = Array.from(document.querySelectorAll("td, th")).filter((td) => {
+        if (!isVisible(td)) return false;
+        const f = fieldOf(td, infos);
+        return !!f && f.label === want;
+      });
+      if (!matches.length) reason = "no_field";
     } else if (kind === "css") {
       try {
         matches = Array.from(document.querySelectorAll(loc.value)).filter(isVisible);
@@ -474,6 +506,9 @@
         for (const where of rowScopes(tf, col)) {
           out.push({ kind: "table_cell", table: tf.info.name, column: col, row_where: where });
         }
+      } else {
+        const f = fieldOf(el, infos);
+        if (f) out.push({ kind: "field", label: f.label });
       }
     } else if (tag === "TABLE") {
       const info = infos.find((i) => i.table === el);

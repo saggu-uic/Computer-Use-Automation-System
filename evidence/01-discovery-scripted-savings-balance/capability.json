@@ -291,16 +291,16 @@
     "run_max_ms": 90000
   },
   "provenance": {
-    "discovered_from_run": "disc_20260915_125440_07e4",
+    "discovered_from_run": "disc_20260915_155213_2926",
     "goal": "What is the current regular savings balance for member {{member_number}}?",
     "planner": {
       "provider": "scripted",
       "model": "scripted-get-savings-balance"
     },
-    "compiled_at": "2026-09-15T17:54:47Z",
+    "compiled_at": "2026-09-15T20:52:22Z",
     "validated_by_runs": [
-      "val_20260915_125447_8969",
-      "val_20260915_125448_82df"
+      "val_20260915_155222_3d34",
+      "val_20260915_155223_74b9"
     ],
     "content_hash": "sha256:b18a8684c2731716a0c24f063b0c6c8096b8fea0b85d783c001e761ff40e1c36"
   }

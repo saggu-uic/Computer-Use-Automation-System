@@ -17,6 +17,8 @@ def _norm(text: str | None) -> str:
 
 
 def find_ref(snap: Any, find: dict[str, Any]) -> str | None:
+    if "field" in find:
+        return next((f.ref for f in snap.fields.values() if _norm(f.label) == _norm(find["field"])), None)
     if "cell" in find:
         c = find["cell"]
         for cell in snap.cells.values():

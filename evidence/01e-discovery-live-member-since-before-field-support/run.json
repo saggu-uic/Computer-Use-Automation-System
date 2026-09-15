@@ -1,0 +1,32 @@
+{
+  "run_id": "disc_20260915_151319_2da0",
+  "kind": "discovery",
+  "duration_ms": 926578,
+  "llm_usage": {
+    "calls": 4,
+    "input_tokens": 12960,
+    "output_tokens": 657,
+    "cost_usd": 0.081225
+  },
+  "goal": "When did member {{value_1}} become a member?",
+  "status": "failed",
+  "code": "HUMAN_TIMEOUT",
+  "message": "intervention expired",
+  "capability_name": null,
+  "target": "http://127.0.0.1:8700",
+  "product": "fakebank-core",
+  "planner": {
+    "provider": "anthropic",
+    "model": "claude-opus-5"
+  },
+  "inputs": [
+    {
+      "placeholder": "value_1",
+      "kind": "digits",
+      "explicit_name": null,
+      "explicit_type": null
+    }
+  ],
+  "declared_outputs": {},
+  "extracted": {}
+}

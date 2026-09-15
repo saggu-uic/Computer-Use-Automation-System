@@ -1,5 +1,5 @@
 {
-  "invocation_id": "rep_20260915_125610_3854",
+  "invocation_id": "rep_20260915_155354_5a9e",
   "capability": "fakebank.member.get_savings_balance_tampered@1.1.0",
   "content_hash": "sha256:4d0131e6e23abbc0fe124029b05e5109173fac4afa09346182585fcd72e5008a",
   "profile_hash": "sha256:d3898505715a0d8bf4d590cddaa821204c47bdef06ab47336c81d4489c99b348",
@@ -30,7 +30,7 @@
   "ui_touched": true,
   "side_effects_possible": false,
   "timing_ms": {
-    "total": 1275
+    "total": 1206
   },
-  "evidence": "runs/rep_20260915_125610_3854"
+  "evidence": "runs/rep_20260915_155354_5a9e"
 }

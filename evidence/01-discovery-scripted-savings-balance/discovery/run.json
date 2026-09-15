@@ -1,7 +1,7 @@
 {
-  "run_id": "disc_20260915_125440_07e4",
+  "run_id": "disc_20260915_155213_2926",
   "kind": "discovery",
-  "duration_ms": 7635,
+  "duration_ms": 8251,
   "llm_usage": {
     "calls": 5,
     "input_tokens": 0,
@@ -13,7 +13,7 @@
   "code": null,
   "message": "Read the member's regular savings balance",
   "capability_name": "get_savings_balance",
-  "target": "http://127.0.0.1:59621",
+  "target": "http://127.0.0.1:53723",
   "product": "fakebank-core",
   "planner": {
     "provider": "scripted",

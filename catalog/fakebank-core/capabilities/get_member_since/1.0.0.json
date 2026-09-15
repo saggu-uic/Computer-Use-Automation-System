@@ -1,0 +1,300 @@
+{
+  "schema_version": "1.0",
+  "kind": "capability",
+  "id": "fakebank.member.get_member_since",
+  "version": "1.0.0",
+  "status": "validated",
+  "app": {
+    "product": "fakebank-core",
+    "product_versions": ">=3.0,<4.0",
+    "surface": "web",
+    "profile": {
+      "version": "3.2.0",
+      "hash": "sha256:d3898505715a0d8bf4d590cddaa821204c47bdef06ab47336c81d4489c99b348"
+    }
+  },
+  "contract": {
+    "summary": "When did member {{member_number}} become a member?",
+    "description": "",
+    "inputs": {
+      "member_number": {
+        "type": "string",
+        "pattern": "^[0-9]+$",
+        "classification": "pii",
+        "description": "Credit union member number",
+        "named_from": "textbox labelled \"MEMBER #\""
+      }
+    },
+    "outputs": {
+      "member_since": {
+        "type": "date",
+        "classification": "internal",
+        "description": ""
+      }
+    },
+    "outcomes": [
+      {
+        "code": "MEMBER_NOT_FOUND",
+        "description": "No member exists with this number."
+      },
+      {
+        "code": "INVALID_MEMBER_NUMBER",
+        "description": "The application rejected the member number format; the caller must supply a valid one."
+      },
+      {
+        "code": "ACCOUNT_RESTRICTED",
+        "description": "The member record is restricted for this operator."
+      }
+    ],
+    "side_effects": "none",
+    "idempotent": true,
+    "irreversible_steps": []
+  },
+  "start": {
+    "screen": "main_menu"
+  },
+  "steps": [
+    {
+      "id": "click_member_inq_link",
+      "action": "click",
+      "target": "member_inq_link",
+      "risk": "safe",
+      "expect": [
+        {
+          "screen": "member_inquiry",
+          "then": "continue"
+        }
+      ],
+      "origin": "agent",
+      "description": "link \"MEMBER INQ\" (nav frame)"
+    },
+    {
+      "id": "enter_member_number_field",
+      "action": "type",
+      "target": "member_number_field",
+      "value": "{{member_number}}",
+      "risk": "safe",
+      "verify": "value_matches",
+      "origin": "agent",
+      "description": "textbox \"MEMBER #\" (main frame)"
+    },
+    {
+      "id": "click_go_button",
+      "action": "click",
+      "target": "go_button",
+      "risk": "safe",
+      "expect": [
+        {
+          "screen": "member_detail",
+          "then": "continue"
+        },
+        {
+          "screen": "member_not_found",
+          "then": {
+            "outcome": "MEMBER_NOT_FOUND"
+          }
+        },
+        {
+          "screen": "invalid_member_number",
+          "then": {
+            "outcome": "INVALID_MEMBER_NUMBER"
+          }
+        },
+        {
+          "screen": "access_restricted",
+          "then": {
+            "outcome": "ACCOUNT_RESTRICTED"
+          }
+        }
+      ],
+      "origin": "agent",
+      "description": "button \"GO\" (main frame)"
+    },
+    {
+      "id": "read_member_since",
+      "action": "extract",
+      "target": "member_since_value",
+      "risk": "safe",
+      "into": "member_since",
+      "parse": "date",
+      "origin": "agent",
+      "description": "Read member_since"
+    }
+  ],
+  "targets": {
+    "member_inq_link": {
+      "description": "link \"MEMBER INQ\" (nav frame)",
+      "locators": [
+        {
+          "kind": "role",
+          "frame": "nav",
+          "role": "link",
+          "name": "MEMBER INQ"
+        },
+        {
+          "kind": "text",
+          "frame": "nav",
+          "text": "MEMBER INQ"
+        },
+        {
+          "kind": "css",
+          "frame": "nav",
+          "value": "table > tbody > tr:nth-of-type(2) > td > a",
+          "fragile": true
+        }
+      ]
+    },
+    "member_number_field": {
+      "description": "textbox \"MEMBER #\" (main frame)",
+      "locators": [
+        {
+          "kind": "label",
+          "frame": "main",
+          "role": "textbox",
+          "label": "MEMBER #"
+        },
+        {
+          "kind": "css",
+          "frame": "main",
+          "value": "form[name=\"F12\"] > table > tbody > tr > td:nth-of-type(2) > input[name=\"F0031\"]",
+          "fragile": true
+        }
+      ]
+    },
+    "go_button": {
+      "description": "button \"GO\" (main frame)",
+      "locators": [
+        {
+          "kind": "role",
+          "frame": "main",
+          "role": "button",
+          "name": "GO"
+        },
+        {
+          "kind": "near_text",
+          "frame": "main",
+          "role": "button",
+          "text": "MEMBER #",
+          "direction": "right"
+        },
+        {
+          "kind": "css",
+          "frame": "main",
+          "value": "form[name=\"F12\"] > table > tbody > tr > td:nth-of-type(3) > input",
+          "fragile": true
+        }
+      ]
+    },
+    "member_since_value": {
+      "description": "value next to \"MEMBER SINCE\" (main frame)",
+      "locators": [
+        {
+          "kind": "field",
+          "frame": "main",
+          "label": "MEMBER SINCE"
+        },
+        {
+          "kind": "css",
+          "frame": "main",
+          "value": "table:nth-of-type(1) > tbody > tr:nth-of-type(2) > td:nth-of-type(2)",
+          "fragile": true
+        }
+      ]
+    }
+  },
+  "screens": {
+    "access_restricted": {
+      "kind": "outcome",
+      "description": "The member record is restricted for this operator.",
+      "match": [
+        {
+          "heading": "RECORD RESTRICTED",
+          "frame": "main"
+        }
+      ],
+      "outcome": "ACCOUNT_RESTRICTED"
+    },
+    "invalid_member_number": {
+      "kind": "outcome",
+      "description": "The application rejected the member number format; the caller must supply a valid one.",
+      "match": [
+        {
+          "text_contains": "MEMBER # MUST BE 6-10 DIGITS",
+          "frame": "main"
+        }
+      ],
+      "outcome": "INVALID_MEMBER_NUMBER"
+    },
+    "main_menu": {
+      "kind": "page",
+      "match": [
+        {
+          "heading": "MAIN MENU",
+          "frame": "main"
+        }
+      ]
+    },
+    "member_detail": {
+      "kind": "page",
+      "description": "Detail page for the requested member (right-record check)",
+      "match": [
+        {
+          "heading_contains": "MEMBER DETAIL",
+          "frame": "main"
+        },
+        {
+          "heading_contains": "{{member_number}}",
+          "frame": "main"
+        }
+      ]
+    },
+    "member_inquiry": {
+      "kind": "page",
+      "match": [
+        {
+          "heading": "MEMBER INQUIRY",
+          "frame": "main"
+        }
+      ]
+    },
+    "member_not_found": {
+      "kind": "outcome",
+      "description": "No member exists with this number.",
+      "match": [
+        {
+          "text_contains": "NO MEMBER FOUND",
+          "frame": "main"
+        }
+      ],
+      "outcome": "MEMBER_NOT_FOUND"
+    }
+  },
+  "success": {
+    "all": [
+      {
+        "screen": "member_detail"
+      },
+      {
+        "output_valid": "member_since"
+      }
+    ]
+  },
+  "timeouts": {
+    "step_default_ms": 6000,
+    "run_max_ms": 90000
+  },
+  "provenance": {
+    "discovered_from_run": "disc_20260915_155234_6ca8",
+    "goal": "When did member {{member_number}} become a member?",
+    "planner": {
+      "provider": "scripted",
+      "model": "scripted-get-member-since"
+    },
+    "compiled_at": "2026-09-15T20:52:41Z",
+    "validated_by_runs": [
+      "val_20260915_155241_d2f8",
+      "val_20260915_155242_cd41"
+    ],
+    "content_hash": "sha256:88c72d77e98dca48b80e501d695a69f805471d99f34e0a64a8459192037efa9d"
+  }
+}

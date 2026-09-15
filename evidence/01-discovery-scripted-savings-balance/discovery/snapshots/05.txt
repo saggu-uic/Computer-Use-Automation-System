@@ -1,6 +1,6 @@
 FRAME banner  route=/cgi/BANNER
   text "FAKEBANK CORE R3.2"
-  text "12:54:47"
+  text "15:52:21"
 FRAME nav  route=/cgi/NAV
   row: [e1] link "MAIN MENU"
   row: [e2] link "MEMBER INQ"
@@ -9,10 +9,10 @@ FRAME nav  route=/cgi/NAV
   row: [e5] link "SIGN OFF"
 FRAME main  route=/cgi/MBRDTL?m={{value_1}}
   heading "MEMBER DETAIL {{value_1}} «NAME_1»"
-  row: "TAX ID" | (untrusted page text) «TEXT_1»
-  row: "MEMBER SINCE" | "03/14/2011"
+  row: "TAX ID" | [e19] (untrusted page text) «TEXT_1»
+  row: "MEMBER SINCE" | [e20] "03/14/2011"
   [e10] TABLE "SHARE ACCOUNTS"  columns: TYPE | SHARE ID | BALANCE | STATUS
      row 1: [e11] "REGULAR SAVINGS" | [e12] «ACCT_1» | [e13] «MONEY_1» | [e14] "ACTIVE" | [e6] button "CLOSE SHARE"
      row 2: [e15] "SHARE DRAFT" | [e16] «ACCT_2» | [e17] «MONEY_2» | [e18] "ACTIVE" | [e7] button "CLOSE SHARE"
   row: [e8] button "TRANS HIST" | [e9] button "NEW INQUIRY"
-  row: "MEMBER NOTES" | (untrusted page text) «TEXT_2»
+  row: "MEMBER NOTES" | [e21] (untrusted page text) «TEXT_2»

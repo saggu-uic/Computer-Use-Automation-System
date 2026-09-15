@@ -1,0 +1,39 @@
+{
+  "run_id": "disc_20260915_155234_6ca8",
+  "kind": "discovery",
+  "duration_ms": 6640,
+  "llm_usage": {
+    "calls": 5,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "goal": "When did member {{value_1}} become a member?",
+  "status": "completed",
+  "code": null,
+  "message": "Read the date the member joined",
+  "capability_name": "get_member_since",
+  "target": "http://127.0.0.1:53723",
+  "product": "fakebank-core",
+  "planner": {
+    "provider": "scripted",
+    "model": "scripted-get-member-since"
+  },
+  "inputs": [
+    {
+      "placeholder": "value_1",
+      "kind": "digits",
+      "explicit_name": null,
+      "explicit_type": null
+    }
+  ],
+  "declared_outputs": {},
+  "extracted": {
+    "member_since": {
+      "type": "date",
+      "columns": null,
+      "classification": "internal",
+      "target": "value next to \"MEMBER SINCE\" [main]"
+    }
+  }
+}

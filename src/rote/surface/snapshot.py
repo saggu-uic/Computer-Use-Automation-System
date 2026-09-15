@@ -67,6 +67,26 @@ class CellNode(BaseModel):
         return {"role": "cell", "name": self.column, "form_submit": False, "form_method": None}
 
 
+class FieldNode(BaseModel):
+    """The value next to a label in a layout row, e.g. MEMBER SINCE | 09/02/2016."""
+
+    ref: str
+    frame: str
+    index: int
+    label: str
+    text: str
+    box: Box | None = None
+    dialog: str | None = None
+
+    role: str = "field"
+
+    def describe(self) -> str:
+        return f'value next to "{self.label}" [{self.frame}]'
+
+    def policy_view(self) -> dict[str, Any]:
+        return {"role": "cell", "name": self.label, "form_submit": False, "form_method": None}
+
+
 class RowNode(BaseModel):
     values: dict[str, str]
     cells: list[CellNode | None]
@@ -101,7 +121,7 @@ class FrameView(BaseModel):
     layout: list[dict[str, Any]] = Field(default_factory=list)
 
 
-Node = ElementNode | CellNode | TableNode
+Node = ElementNode | CellNode | TableNode | FieldNode
 
 
 class Snapshot(BaseModel):
@@ -109,10 +129,11 @@ class Snapshot(BaseModel):
     elements: dict[str, ElementNode] = Field(default_factory=dict)
     tables: dict[str, TableNode] = Field(default_factory=dict)
     cells: dict[str, CellNode] = Field(default_factory=dict)
+    fields: dict[str, FieldNode] = Field(default_factory=dict)
     fingerprint: str = ""
 
     def node(self, ref: str) -> Node | None:
-        return self.elements.get(ref) or self.tables.get(ref) or self.cells.get(ref)
+        return self.elements.get(ref) or self.tables.get(ref) or self.cells.get(ref) or self.fields.get(ref)
 
     def has_ref(self, ref: str) -> bool:
         return self.node(ref) is not None

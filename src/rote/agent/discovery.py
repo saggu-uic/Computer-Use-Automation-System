@@ -18,7 +18,7 @@ from rote.models.common import DataClass
 from rote.replay import matcher
 from rote.replay.engine import RestartRun, StepFailure, StepRunner, park_browser
 from rote.replay.parsing import ParseError, infer_columns, parse_table, parse_value, snake
-from rote.surface.snapshot import CellNode, TableNode
+from rote.surface.snapshot import CellNode, FieldNode, TableNode
 
 if TYPE_CHECKING:
     from rote.runtime import RunContext, Runtime
@@ -318,6 +318,8 @@ class DiscoveryAgent:
                 classification = DataClass.financial
         elif isinstance(node, CellNode):
             classification = run.masker.classify_cell(node.table, node.column) or (DataClass.financial if kind == "money" else DataClass.internal)
+        elif isinstance(node, FieldNode):
+            classification = run.masker.classify_section(node.label) or (DataClass.financial if kind == "money" else DataClass.internal)
         locators = rt.clean_locators(run, await rt.surface.locator_candidates(ref))
         extracted[name] = {"type": kind, "value": value, "columns": columns, "classification": classification.value, "target": target_desc}
         size = f"{len(value)} rows" if isinstance(value, list) else "1 value"

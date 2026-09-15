@@ -1,0 +1,17 @@
+{
+  "name": "scripted-get-member-since",
+  "goal": "When did member 100245 become a member?",
+  "steps": [
+    { "tool": "click", "find": { "role": "link", "name": "MEMBER INQ", "frame": "nav" }, "why": "Member lookups start from the member inquiry screen" },
+    { "tool": "type_text", "find": { "role": "textbox", "label": "MEMBER #" }, "text": "{{value_1}}", "why": "Enter the member number from the goal" },
+    { "tool": "click", "find": { "role": "button", "name": "GO" }, "why": "Run the member search" },
+    {
+      "tool": "extract",
+      "find": { "field": "MEMBER SINCE" },
+      "output_name": "member_since",
+      "value_type": "date",
+      "why": "The join date is the value next to the MEMBER SINCE label"
+    },
+    { "tool": "done", "summary": "Read the date the member joined", "capability_name": "get_member_since" }
+  ]
+}

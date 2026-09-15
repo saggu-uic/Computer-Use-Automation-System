@@ -10,11 +10,11 @@
   "fields": null,
   "evidence": null,
   "intervention": {
-    "id": "int_81ec25",
+    "id": "int_da576d",
     "kind": "take_control",
     "reason_code": "SUPERVISOR_OVERRIDE_REQUIRED",
     "reason": "Only a supervisor can complete this; automation escalates",
-    "screenshot": "interventions/int_81ec25/before.png",
+    "screenshot": "interventions/int_da576d/before.png",
     "resume_expectation": {
       "after_step": "click_go_button",
       "expected_screens": [
@@ -25,6 +25,6 @@
       ],
       "instructions": "Resolve this in the browser window, leave the application on member_detail or member_not_found or invalid_member_number or access_restricted, then press Resume."
     },
-    "created_at": "2026-09-15T17:55:58.878Z"
+    "created_at": "2026-09-15T20:53:41.809Z"
   }
 }

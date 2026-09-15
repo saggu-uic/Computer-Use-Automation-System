@@ -71,6 +71,25 @@ async def test_transactions_table_capability(runtime):
     assert invalid.status == "business_outcome" and invalid.outcome.code == "INVALID_MEMBER_NUMBER"
 
 
+async def test_label_value_field_capability(runtime):
+    result = await discover(runtime, "get_member_since.json")
+    assert result.status == "completed", result.message
+    compiled = compile_run(result.run_dir, runtime.profile, runtime.catalog)
+    assert compiled.capability is not None, compiled.errors
+    cap = compiled.capability
+    extract = next(s for s in cap.steps if s.action == "extract")
+    assert cap.targets[extract.target].locators[0].kind == "field"
+    same = {compiled.input_map["value_1"]: "100245"}
+    cap, results = await validate_capability(runtime, cap, same, different_inputs(cap, runtime.profile, same))
+    assert cap.status == "validated", [r.error for r in results]
+    joined = await ReplayEngine(runtime, cap).run({"member_number": "100377"})
+    assert joined.status == "success" and joined.outputs["member_since"] == "2016-09-02", joined
+    missing = await ReplayEngine(runtime, cap).run({"member_number": "999999"})
+    assert missing.status == "business_outcome" and missing.outcome.code == "MEMBER_NOT_FOUND"
+    restricted = await ReplayEngine(runtime, cap).run({"member_number": "100733"})
+    assert restricted.status == "business_outcome" and restricted.outcome.code == "ACCOUNT_RESTRICTED"
+
+
 async def test_goal_not_achievable(runtime):
     result = await discover(runtime, "wire_transfer_not_possible.json")
     assert result.status == "GOAL_NOT_ACHIEVABLE"

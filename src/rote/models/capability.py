@@ -11,8 +11,8 @@ from rote.models.common import DataClass, Risk, Strict
 
 PLACEHOLDER = re.compile(r"\{\{\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\}\}")
 
-LocatorKind = Literal["role", "label", "near_text", "table_cell", "table", "text", "css"]
-DURABLE_KINDS = {"role", "label", "near_text", "table_cell", "table", "text"}
+LocatorKind = Literal["role", "label", "near_text", "table_cell", "table", "field", "text", "css"]
+DURABLE_KINDS = {"role", "label", "near_text", "table_cell", "table", "field", "text"}
 
 
 class Locator(Strict):
@@ -43,6 +43,7 @@ class Locator(Strict):
             "near_text": ["role", "text"],
             "table_cell": ["table", "column", "row_where"],
             "table": ["table"],
+            "field": ["label"],
             "text": ["text"],
             "css": ["value"],
         }[self.kind]
@@ -66,6 +67,8 @@ class Locator(Strict):
             text = f'{self.column} where {where} in "{self.table}"'
         elif self.kind == "table":
             text = f'table "{self.table}"'
+        elif self.kind == "field":
+            text = f'value next to "{self.label}"'
         elif self.kind == "text":
             text = f'text "{self.text}"'
         else:
