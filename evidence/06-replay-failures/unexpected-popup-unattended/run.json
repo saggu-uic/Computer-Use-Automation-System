@@ -1,0 +1,53 @@
+{
+  "run_id": "rep_20260915_125535_af3c",
+  "kind": "replay",
+  "duration_ms": 960,
+  "llm_usage": {
+    "calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "capability": "fakebank.member.get_savings_balance@1.1.0",
+  "status": "failure",
+  "code": "UNEXPECTED_SCREEN",
+  "inputs": {
+    "member_number": "{{member_number}}"
+  },
+  "result": {
+    "invocation_id": "rep_20260915_125535_af3c",
+    "capability": "fakebank.member.get_savings_balance@1.1.0",
+    "content_hash": "sha256:b18a8684c2731716a0c24f063b0c6c8096b8fea0b85d783c001e761ff40e1c36",
+    "profile_hash": "sha256:d3898505715a0d8bf4d590cddaa821204c47bdef06ab47336c81d4489c99b348",
+    "mode": "unattended",
+    "status": "failure",
+    "outputs": {},
+    "outcome": null,
+    "error": {
+      "code": "UNEXPECTED_SCREEN",
+      "category": "automation",
+      "phase": "execution",
+      "retryable": false,
+      "message": "unknown dialog: ACCOUNT VERIFICATION PENDING - CALL EXT 4410",
+      "step_id": "click_go_button",
+      "expected": "member_detail | member_not_found | invalid_member_number | access_restricted",
+      "observed": "route /cgi/MBRDTL; headings MEMBER DETAIL {{member_number}} «NAME_1»; dialogs ACCOUNT VERIFICATION PENDING - CALL EXT 4410",
+      "fields": null,
+      "evidence": {
+        "events": "events.jsonl",
+        "screenshot": "failure/screen.png",
+        "snapshot": "failure/snapshot.txt"
+      },
+      "intervention": null
+    },
+    "recoveries": [],
+    "warnings": [],
+    "interventions": [],
+    "ui_touched": true,
+    "side_effects_possible": false,
+    "timing_ms": {
+      "total": 956
+    },
+    "evidence": "runs/rep_20260915_125535_af3c"
+  }
+}

@@ -1,0 +1,314 @@
+{
+  "schema_version": "1.0",
+  "kind": "capability",
+  "id": "fakebank.member.get_regular_savings_balance",
+  "version": "1.0.0",
+  "status": "validated",
+  "app": {
+    "product": "fakebank-core",
+    "product_versions": ">=3.0,<4.0",
+    "surface": "web",
+    "profile": {
+      "version": "3.2.0",
+      "hash": "sha256:d3898505715a0d8bf4d590cddaa821204c47bdef06ab47336c81d4489c99b348"
+    }
+  },
+  "contract": {
+    "summary": "What is the current regular savings balance for member {{member_number}}?",
+    "description": "",
+    "inputs": {
+      "member_number": {
+        "type": "string",
+        "pattern": "^[0-9]+$",
+        "classification": "pii",
+        "description": "Credit union member number",
+        "named_from": "textbox labelled \"MEMBER #\""
+      }
+    },
+    "outputs": {
+      "regular_savings_balance": {
+        "type": "money",
+        "classification": "financial",
+        "description": ""
+      }
+    },
+    "outcomes": [
+      {
+        "code": "MEMBER_NOT_FOUND",
+        "description": "No member exists with this number."
+      },
+      {
+        "code": "INVALID_MEMBER_NUMBER",
+        "description": "The application rejected the member number format; the caller must supply a valid one."
+      },
+      {
+        "code": "ACCOUNT_RESTRICTED",
+        "description": "The member record is restricted for this operator."
+      },
+      {
+        "code": "NO_REGULAR_SAVINGS",
+        "description": "No row where TYPE = REGULAR SAVINGS (name proposed by the compiler)"
+      }
+    ],
+    "side_effects": "none",
+    "idempotent": true,
+    "irreversible_steps": []
+  },
+  "start": {
+    "screen": "main_menu"
+  },
+  "steps": [
+    {
+      "id": "click_member_inquiry_link",
+      "action": "click",
+      "target": "member_inquiry_link",
+      "risk": "safe",
+      "expect": [
+        {
+          "screen": "member_inquiry",
+          "then": "continue"
+        }
+      ],
+      "origin": "agent",
+      "description": "link \"MEMBER INQUIRY\" (main frame)"
+    },
+    {
+      "id": "enter_member_number_field",
+      "action": "type",
+      "target": "member_number_field",
+      "value": "{{member_number}}",
+      "risk": "safe",
+      "verify": "value_matches",
+      "origin": "agent",
+      "description": "textbox \"MEMBER #\" (main frame)"
+    },
+    {
+      "id": "click_go_button",
+      "action": "click",
+      "target": "go_button",
+      "risk": "safe",
+      "expect": [
+        {
+          "screen": "member_detail",
+          "then": "continue"
+        },
+        {
+          "screen": "member_not_found",
+          "then": {
+            "outcome": "MEMBER_NOT_FOUND"
+          }
+        },
+        {
+          "screen": "invalid_member_number",
+          "then": {
+            "outcome": "INVALID_MEMBER_NUMBER"
+          }
+        },
+        {
+          "screen": "access_restricted",
+          "then": {
+            "outcome": "ACCOUNT_RESTRICTED"
+          }
+        }
+      ],
+      "origin": "agent",
+      "description": "button \"GO\" (main frame)"
+    },
+    {
+      "id": "read_regular_savings_balance",
+      "action": "extract",
+      "target": "regular_savings_balance_cell",
+      "risk": "safe",
+      "into": "regular_savings_balance",
+      "parse": "money",
+      "if_missing": {
+        "then": {
+          "outcome": "NO_REGULAR_SAVINGS"
+        }
+      },
+      "origin": "agent",
+      "description": "Read regular_savings_balance"
+    }
+  ],
+  "targets": {
+    "member_inquiry_link": {
+      "description": "link \"MEMBER INQUIRY\" (main frame)",
+      "locators": [
+        {
+          "kind": "role",
+          "frame": "main",
+          "role": "link",
+          "name": "MEMBER INQUIRY"
+        },
+        {
+          "kind": "near_text",
+          "frame": "main",
+          "role": "link",
+          "text": "01",
+          "direction": "right"
+        },
+        {
+          "kind": "text",
+          "frame": "main",
+          "text": "MEMBER INQUIRY"
+        },
+        {
+          "kind": "css",
+          "frame": "main",
+          "value": "table > tbody > tr:nth-of-type(1) > td:nth-of-type(2) > a",
+          "fragile": true
+        }
+      ]
+    },
+    "member_number_field": {
+      "description": "textbox \"MEMBER #\" (main frame)",
+      "locators": [
+        {
+          "kind": "label",
+          "frame": "main",
+          "role": "textbox",
+          "label": "MEMBER #"
+        },
+        {
+          "kind": "css",
+          "frame": "main",
+          "value": "form[name=\"F12\"] > table > tbody > tr > td:nth-of-type(2) > input[name=\"F0031\"]",
+          "fragile": true
+        }
+      ]
+    },
+    "go_button": {
+      "description": "button \"GO\" (main frame)",
+      "locators": [
+        {
+          "kind": "role",
+          "frame": "main",
+          "role": "button",
+          "name": "GO"
+        },
+        {
+          "kind": "near_text",
+          "frame": "main",
+          "role": "button",
+          "text": "MEMBER #",
+          "direction": "right"
+        },
+        {
+          "kind": "css",
+          "frame": "main",
+          "value": "form[name=\"F12\"] > table > tbody > tr > td:nth-of-type(3) > input",
+          "fragile": true
+        }
+      ]
+    },
+    "regular_savings_balance_cell": {
+      "description": "cell BALANCE where TYPE=REGULAR SAVINGS in \"SHARE ACCOUNTS\" (main frame)",
+      "locators": [
+        {
+          "kind": "table_cell",
+          "frame": "main",
+          "table": "SHARE ACCOUNTS",
+          "column": "BALANCE",
+          "row_where": {
+            "TYPE": "REGULAR SAVINGS"
+          }
+        }
+      ]
+    }
+  },
+  "screens": {
+    "access_restricted": {
+      "kind": "outcome",
+      "description": "The member record is restricted for this operator.",
+      "match": [
+        {
+          "heading": "RECORD RESTRICTED",
+          "frame": "main"
+        }
+      ],
+      "outcome": "ACCOUNT_RESTRICTED"
+    },
+    "invalid_member_number": {
+      "kind": "outcome",
+      "description": "The application rejected the member number format; the caller must supply a valid one.",
+      "match": [
+        {
+          "text_contains": "MEMBER # MUST BE 6-10 DIGITS",
+          "frame": "main"
+        }
+      ],
+      "outcome": "INVALID_MEMBER_NUMBER"
+    },
+    "main_menu": {
+      "kind": "page",
+      "match": [
+        {
+          "heading": "MAIN MENU",
+          "frame": "main"
+        }
+      ]
+    },
+    "member_detail": {
+      "kind": "page",
+      "description": "Detail page for the requested member (right-record check)",
+      "match": [
+        {
+          "heading_contains": "MEMBER DETAIL",
+          "frame": "main"
+        },
+        {
+          "heading_contains": "{{member_number}}",
+          "frame": "main"
+        }
+      ]
+    },
+    "member_inquiry": {
+      "kind": "page",
+      "match": [
+        {
+          "heading": "MEMBER INQUIRY",
+          "frame": "main"
+        }
+      ]
+    },
+    "member_not_found": {
+      "kind": "outcome",
+      "description": "No member exists with this number.",
+      "match": [
+        {
+          "text_contains": "NO MEMBER FOUND",
+          "frame": "main"
+        }
+      ],
+      "outcome": "MEMBER_NOT_FOUND"
+    }
+  },
+  "success": {
+    "all": [
+      {
+        "screen": "member_detail"
+      },
+      {
+        "output_valid": "regular_savings_balance"
+      }
+    ]
+  },
+  "timeouts": {
+    "step_default_ms": 6000,
+    "run_max_ms": 90000
+  },
+  "provenance": {
+    "discovered_from_run": "disc_20260915_103601_d95d",
+    "goal": "What is the current regular savings balance for member {{member_number}}?",
+    "planner": {
+      "provider": "anthropic",
+      "model": "claude-opus-5"
+    },
+    "compiled_at": "2026-09-15T15:36:24Z",
+    "validated_by_runs": [
+      "val_20260915_103624_052d",
+      "val_20260915_103625_3de8"
+    ],
+    "content_hash": "sha256:b96dfcc0863304a5a367f22288ab4012b4c39dd0ece33099cc4be37101d5d82c"
+  }
+}

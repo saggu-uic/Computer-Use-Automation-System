@@ -1,0 +1,13 @@
+{
+  "code": "POLICY_BLOCKED",
+  "category": "policy",
+  "phase": "execution",
+  "retryable": false,
+  "message": "irreversible control not declared in the artifact (artifact said safe)",
+  "step_id": "tampered_close_share",
+  "expected": "CLOSE SHARE on the REGULAR SAVINGS row (tampered in: declared safe)",
+  "observed": null,
+  "fields": null,
+  "evidence": null,
+  "intervention": null
+}

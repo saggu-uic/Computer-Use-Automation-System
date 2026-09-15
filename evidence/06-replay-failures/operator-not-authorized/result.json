@@ -1,0 +1,36 @@
+{
+  "invocation_id": "rep_20260915_125538_c124",
+  "capability": "fakebank.member.get_savings_balance@1.1.0",
+  "content_hash": "sha256:b18a8684c2731716a0c24f063b0c6c8096b8fea0b85d783c001e761ff40e1c36",
+  "profile_hash": "sha256:d3898505715a0d8bf4d590cddaa821204c47bdef06ab47336c81d4489c99b348",
+  "mode": "unattended",
+  "status": "failure",
+  "outputs": {},
+  "outcome": null,
+  "error": {
+    "code": "OPERATOR_NOT_AUTHORIZED",
+    "category": "configuration",
+    "phase": "execution",
+    "retryable": false,
+    "message": "operator_not_authorized",
+    "step_id": "click_go_button",
+    "expected": null,
+    "observed": "route /cgi/MBRDTL; headings SECURITY",
+    "fields": null,
+    "evidence": {
+      "events": "events.jsonl",
+      "screenshot": "failure/screen.png",
+      "snapshot": "failure/snapshot.txt"
+    },
+    "intervention": null
+  },
+  "recoveries": [],
+  "warnings": [],
+  "interventions": [],
+  "ui_touched": true,
+  "side_effects_possible": false,
+  "timing_ms": {
+    "total": 879
+  },
+  "evidence": "runs/rep_20260915_125538_c124"
+}

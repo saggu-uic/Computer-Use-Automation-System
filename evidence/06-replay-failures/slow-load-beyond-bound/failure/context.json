@@ -1,0 +1,13 @@
+{
+  "code": "CHECKPOINT_TIMEOUT",
+  "category": "app",
+  "phase": "execution",
+  "retryable": true,
+  "message": "still loading after 12000 ms",
+  "step_id": "click_go_button",
+  "expected": "member_detail | member_not_found | invalid_member_number | access_restricted",
+  "observed": "route /cgi/MBRDTL; text PROCESSING - PLEASE WAIT",
+  "fields": null,
+  "evidence": null,
+  "intervention": null
+}

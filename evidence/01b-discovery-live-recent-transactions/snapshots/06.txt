@@ -1,0 +1,23 @@
+FRAME banner  route=/cgi/BANNER
+  text "FAKEBANK CORE R3.2"
+  text "10:37:10"
+FRAME nav  route=/cgi/NAV
+  row: [e1] link "MAIN MENU"
+  row: [e2] link "MEMBER INQ"
+  row: [e3] link "REPORTS"
+  row: [e4] link "ADMIN"
+  row: [e5] link "SIGN OFF"
+FRAME main  route=/cgi/MBRTRN?m={{value_1}}
+  heading "TRANSACTION HISTORY {{value_1}}"
+  [e7] TABLE "TRANSACTION HISTORY"  columns: DATE | SHARE | DESCRIPTION | AMOUNT
+     row 1: [e8] "09/13/2026" | [e9] "«ACCT_2»" | [e10] "POS PURCHASE GROCERY" | [e11] «MONEY_3»
+     row 2: [e12] "09/11/2026" | [e13] "«ACCT_1»" | [e14] "DIVIDEND" | [e15] «MONEY_4»
+     row 3: [e16] "09/08/2026" | [e17] "«ACCT_2»" | [e18] "PAYROLL DEPOSIT" | [e19] «MONEY_5»
+     row 4: [e20] "09/06/2026" | [e21] "«ACCT_2»" | [e22] "ATM WITHDRAWAL" | [e23] «MONEY_6»
+     row 5: [e24] "09/02/2026" | [e25] "«ACCT_1»" | [e26] "TRANSFER FROM «ACCT_2»" | [e27] «MONEY_7»
+     row 6: [e28] "09/02/2026" | [e29] "«ACCT_2»" | [e30] "TRANSFER TO «ACCT_1»" | [e31] «MONEY_8»
+     row 7: [e32] "08/26/2026" | [e33] "«ACCT_2»" | [e34] "UTILITY PAYMENT" | [e35] «MONEY_9»
+     row 8: [e36] "08/25/2026" | [e37] "«ACCT_2»" | [e38] "PAYROLL DEPOSIT" | [e39] «MONEY_5»
+     row 9: [e40] "08/16/2026" | [e41] "«ACCT_2»" | [e42] "RENT PAYMENT" | [e43] «MONEY_10»
+     row 10: [e44] "08/12/2026" | [e45] "«ACCT_1»" | [e46] "DIVIDEND" | [e47] «MONEY_11»
+  row: [e6] button "BACK"

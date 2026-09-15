@@ -1,0 +1,38 @@
+{
+  "run_id": "disc_20260915_105608_193e",
+  "kind": "discovery",
+  "duration_ms": 26404,
+  "llm_usage": {
+    "calls": 5,
+    "input_tokens": 16351,
+    "output_tokens": 711,
+    "cost_usd": 0.09953
+  },
+  "goal": "Wire {{value_1}} from member {{value_2}} to an external bank account",
+  "status": "GOAL_NOT_ACHIEVABLE",
+  "code": "GOAL_NOT_ACHIEVABLE",
+  "message": "The application's main menu only offers MEMBER INQUIRY, DAILY REPORTS, and SYSTEM ADMINISTRATION. There is no wire transfer or external funds transfer function available anywhere in the navigation or menu, so wiring money from a member to an external bank account cannot be performed in this application.",
+  "capability_name": null,
+  "target": "http://127.0.0.1:8700",
+  "product": "fakebank-core",
+  "planner": {
+    "provider": "anthropic",
+    "model": "claude-opus-5"
+  },
+  "inputs": [
+    {
+      "placeholder": "value_1",
+      "kind": "money",
+      "explicit_name": null,
+      "explicit_type": null
+    },
+    {
+      "placeholder": "value_2",
+      "kind": "digits",
+      "explicit_name": null,
+      "explicit_type": null
+    }
+  ],
+  "declared_outputs": {},
+  "extracted": {}
+}

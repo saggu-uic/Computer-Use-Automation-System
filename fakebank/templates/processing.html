@@ -1,0 +1,5 @@
+{% extends "_base.html" %}
+{% block content %}
+<table><tr><td><b>PROCESSING - PLEASE WAIT</b></td></tr></table>
+<script>setTimeout(function () { location.replace({{ target|tojson }}); }, {{ delay }});</script>
+{% endblock %}

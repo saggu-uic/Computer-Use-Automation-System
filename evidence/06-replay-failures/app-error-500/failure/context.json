@@ -1,0 +1,13 @@
+{
+  "code": "APP_ERROR",
+  "category": "app",
+  "phase": "execution",
+  "retryable": true,
+  "message": "system_error",
+  "step_id": "click_go_button",
+  "expected": null,
+  "observed": "route /cgi/MBRDTL; headings SYSTEM ERROR",
+  "fields": null,
+  "evidence": null,
+  "intervention": null
+}

@@ -1,0 +1,13 @@
+{
+  "code": "UNEXPECTED_SCREEN",
+  "category": "automation",
+  "phase": "execution",
+  "retryable": false,
+  "message": "unknown dialog: ACCOUNT VERIFICATION PENDING - CALL EXT 4410",
+  "step_id": "click_go_button",
+  "expected": "member_detail | member_not_found | invalid_member_number | access_restricted",
+  "observed": "route /cgi/MBRDTL; headings MEMBER DETAIL {{member_number}} «NAME_1»; dialogs ACCOUNT VERIFICATION PENDING - CALL EXT 4410",
+  "fields": null,
+  "evidence": null,
+  "intervention": null
+}

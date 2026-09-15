@@ -1,0 +1,12 @@
+{% extends "_base.html" %}
+{% block content %}
+<h2>SIGN ON</h2>
+<form name="F01" method="POST" action="/cgi/SIGNON">
+<table cellpadding="2">
+<tr><td><b>OPERATOR ID</b></td><td><input type="text" name="F0001" size="12"></td></tr>
+<tr><td><b>PASSWORD</b></td><td><input type="password" name="F0002" size="12"></td></tr>
+<tr><td></td><td><input type="submit" value="SIGN ON"></td></tr>
+</table>
+</form>
+{% if message %}<table><tr><td class="err">{{ message }}</td></tr></table>{% endif %}
+{% endblock %}

@@ -1,0 +1,13 @@
+{
+  "code": "OPERATOR_NOT_AUTHORIZED",
+  "category": "configuration",
+  "phase": "execution",
+  "retryable": false,
+  "message": "operator_not_authorized",
+  "step_id": "click_go_button",
+  "expected": null,
+  "observed": "route /cgi/MBRDTL; headings SECURITY",
+  "fields": null,
+  "evidence": null,
+  "intervention": null
+}

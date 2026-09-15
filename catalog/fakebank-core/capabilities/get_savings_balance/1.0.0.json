@@ -1,0 +1,274 @@
+{
+  "schema_version": "1.0",
+  "kind": "capability",
+  "id": "fakebank.member.get_savings_balance",
+  "version": "1.0.0",
+  "status": "draft",
+  "app": {
+    "product": "fakebank-core",
+    "product_versions": ">=3.0,<4.0",
+    "surface": "web",
+    "profile": {
+      "version": "3.2.0",
+      "hash": "sha256:d3898505715a0d8bf4d590cddaa821204c47bdef06ab47336c81d4489c99b348"
+    }
+  },
+  "contract": {
+    "summary": "Return the current balance of a member's regular savings share.",
+    "description": "Looks up the member by member number and reads the BALANCE of the REGULAR SAVINGS row in SHARE ACCOUNTS.",
+    "inputs": {
+      "member_number": {
+        "type": "string",
+        "pattern": "^[0-9]{6,10}$",
+        "classification": "pii",
+        "description": "Credit union member number"
+      }
+    },
+    "outputs": {
+      "savings_balance": {
+        "type": "money",
+        "classification": "financial",
+        "description": "Current balance of the regular savings share"
+      }
+    },
+    "outcomes": [
+      {
+        "code": "MEMBER_NOT_FOUND",
+        "description": "No member exists with this number."
+      },
+      {
+        "code": "INVALID_MEMBER_NUMBER",
+        "description": "The application rejected the member number format."
+      },
+      {
+        "code": "ACCOUNT_RESTRICTED",
+        "description": "The member record is restricted for this operator."
+      },
+      {
+        "code": "NO_SAVINGS_ACCOUNT",
+        "description": "The member has no regular savings share."
+      }
+    ],
+    "side_effects": "none",
+    "idempotent": true,
+    "irreversible_steps": []
+  },
+  "start": {
+    "screen": "main_menu"
+  },
+  "steps": [
+    {
+      "id": "open_member_inquiry",
+      "action": "click",
+      "target": "nav_member_inquiry",
+      "risk": "safe",
+      "expect": [
+        {
+          "screen": "member_inquiry",
+          "then": "continue"
+        }
+      ],
+      "origin": "author"
+    },
+    {
+      "id": "enter_member_number",
+      "action": "type",
+      "target": "member_number_field",
+      "value": "{{member_number}}",
+      "risk": "safe",
+      "verify": "value_matches",
+      "origin": "author"
+    },
+    {
+      "id": "search",
+      "action": "click",
+      "target": "go_button",
+      "risk": "safe",
+      "expect": [
+        {
+          "screen": "member_detail",
+          "then": "continue"
+        },
+        {
+          "screen": "member_not_found",
+          "then": {
+            "outcome": "MEMBER_NOT_FOUND"
+          }
+        },
+        {
+          "screen": "invalid_member_number",
+          "then": {
+            "outcome": "INVALID_MEMBER_NUMBER"
+          }
+        },
+        {
+          "screen": "access_restricted",
+          "then": {
+            "outcome": "ACCOUNT_RESTRICTED"
+          }
+        }
+      ],
+      "timeout_ms": 8000,
+      "origin": "author"
+    },
+    {
+      "id": "read_balance",
+      "action": "extract",
+      "target": "regular_savings_balance_cell",
+      "risk": "safe",
+      "into": "savings_balance",
+      "parse": "money",
+      "if_missing": {
+        "then": {
+          "outcome": "NO_SAVINGS_ACCOUNT"
+        }
+      },
+      "origin": "author"
+    }
+  ],
+  "targets": {
+    "nav_member_inquiry": {
+      "description": "MEMBER INQ link in the navigation frame",
+      "locators": [
+        {
+          "kind": "role",
+          "frame": "nav",
+          "role": "link",
+          "name": "MEMBER INQ"
+        }
+      ]
+    },
+    "member_number_field": {
+      "description": "Member number input on MEMBER INQUIRY",
+      "locators": [
+        {
+          "kind": "label",
+          "frame": "main",
+          "role": "textbox",
+          "label": "MEMBER #"
+        },
+        {
+          "kind": "css",
+          "frame": "main",
+          "value": "form[name=\"F12\"] input[name=\"F0031\"]",
+          "fragile": true
+        }
+      ]
+    },
+    "go_button": {
+      "description": "Search button next to MEMBER #",
+      "locators": [
+        {
+          "kind": "role",
+          "frame": "main",
+          "role": "button",
+          "name": "GO"
+        },
+        {
+          "kind": "near_text",
+          "frame": "main",
+          "role": "button",
+          "text": "MEMBER #",
+          "direction": "right"
+        }
+      ]
+    },
+    "regular_savings_balance_cell": {
+      "description": "BALANCE of the REGULAR SAVINGS row in SHARE ACCOUNTS",
+      "locators": [
+        {
+          "kind": "table_cell",
+          "frame": "main",
+          "table": "SHARE ACCOUNTS",
+          "column": "BALANCE",
+          "row_where": {
+            "TYPE": "REGULAR SAVINGS"
+          }
+        }
+      ]
+    }
+  },
+  "screens": {
+    "main_menu": {
+      "kind": "page",
+      "match": [
+        {
+          "heading": "MAIN MENU",
+          "frame": "main"
+        }
+      ]
+    },
+    "member_inquiry": {
+      "kind": "page",
+      "match": [
+        {
+          "heading": "MEMBER INQUIRY",
+          "frame": "main"
+        }
+      ]
+    },
+    "member_detail": {
+      "kind": "page",
+      "description": "Detail page for the requested member (right-record check)",
+      "match": [
+        {
+          "heading_contains": "MEMBER DETAIL",
+          "frame": "main"
+        },
+        {
+          "heading_contains": "{{member_number}}",
+          "frame": "main"
+        }
+      ]
+    },
+    "member_not_found": {
+      "kind": "outcome",
+      "match": [
+        {
+          "text_contains": "NO MEMBER FOUND",
+          "frame": "main"
+        }
+      ],
+      "outcome": "MEMBER_NOT_FOUND"
+    },
+    "invalid_member_number": {
+      "kind": "outcome",
+      "match": [
+        {
+          "text_contains": "MEMBER # MUST BE 6-10 DIGITS",
+          "frame": "main"
+        }
+      ],
+      "outcome": "INVALID_MEMBER_NUMBER"
+    },
+    "access_restricted": {
+      "kind": "outcome",
+      "match": [
+        {
+          "heading": "RECORD RESTRICTED",
+          "frame": "main"
+        }
+      ],
+      "outcome": "ACCOUNT_RESTRICTED"
+    }
+  },
+  "success": {
+    "all": [
+      {
+        "screen": "member_detail"
+      },
+      {
+        "output_valid": "savings_balance"
+      }
+    ]
+  },
+  "timeouts": {
+    "step_default_ms": 6000,
+    "run_max_ms": 90000
+  },
+  "provenance": {
+    "authored_by": "hand-written reference: proves the artifact and replay contract independently of discovery",
+    "validated_by_runs": [],
+    "content_hash": "sha256:de521db14905ffe33c2d1162672f8532548c66fdf225823078653ae5ffd1c5b1"
+  }
+}

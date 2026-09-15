@@ -1,0 +1,22 @@
+{
+  "invocation_id": "val_20260915_103714_a864",
+  "capability": "fakebank.member.get_member_recent_transactions@1.0.0",
+  "content_hash": "sha256:1b7198d1c7888b806c05013ddab29c17bb0d0fa54b18fc603b95c02221bc1e2c",
+  "profile_hash": "sha256:d3898505715a0d8bf4d590cddaa821204c47bdef06ab47336c81d4489c99b348",
+  "mode": "unattended",
+  "status": "success",
+  "outputs": {
+    "recent_transactions": "«10 rows, financial»"
+  },
+  "outcome": null,
+  "error": null,
+  "recoveries": [],
+  "warnings": [],
+  "interventions": [],
+  "ui_touched": true,
+  "side_effects_possible": false,
+  "timing_ms": {
+    "total": 1818
+  },
+  "evidence": "runs/val_20260915_103714_a864"
+}

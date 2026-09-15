@@ -1,0 +1,18 @@
+{
+  "name": "scripted-recent-transactions",
+  "goal": "Show recent transactions for member 100245",
+  "steps": [
+    { "tool": "click", "find": { "role": "link", "name": "MEMBER INQ", "frame": "nav" }, "why": "Find the member first" },
+    { "tool": "type_text", "find": { "role": "textbox", "label": "MEMBER #" }, "text": "{{value_1}}", "why": "Enter the member number from the goal" },
+    { "tool": "click", "find": { "role": "button", "name": "GO" }, "why": "Open the member record" },
+    { "tool": "click", "find": { "role": "button", "name": "TRANS HIST" }, "why": "Transaction history is behind the TRANS HIST button" },
+    {
+      "tool": "extract",
+      "find": { "table": "TRANSACTION HISTORY" },
+      "output_name": "recent_transactions",
+      "value_type": "table",
+      "why": "The goal asks for the list of recent transactions"
+    },
+    { "tool": "done", "summary": "Listed the member's recent transactions", "capability_name": "recent_transactions" }
+  ]
+}

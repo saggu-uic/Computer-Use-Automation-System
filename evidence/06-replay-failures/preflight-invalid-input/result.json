@@ -1,0 +1,34 @@
+{
+  "invocation_id": "rep_20260915_125534_f474",
+  "capability": "fakebank.member.get_savings_balance@1.0.0",
+  "content_hash": "sha256:de521db14905ffe33c2d1162672f8532548c66fdf225823078653ae5ffd1c5b1",
+  "profile_hash": "sha256:d3898505715a0d8bf4d590cddaa821204c47bdef06ab47336c81d4489c99b348",
+  "mode": "unattended",
+  "status": "failure",
+  "outputs": {},
+  "outcome": null,
+  "error": {
+    "code": "INVALID_INPUT",
+    "category": "caller_error",
+    "phase": "preflight",
+    "retryable": false,
+    "message": "inputs do not satisfy the contract",
+    "step_id": null,
+    "expected": null,
+    "observed": null,
+    "fields": {
+      "member_number": "must match ^[0-9]{6,10}$"
+    },
+    "evidence": null,
+    "intervention": null
+  },
+  "recoveries": [],
+  "warnings": [],
+  "interventions": [],
+  "ui_touched": false,
+  "side_effects_possible": false,
+  "timing_ms": {
+    "total": 3
+  },
+  "evidence": "runs/rep_20260915_125534_f474"
+}

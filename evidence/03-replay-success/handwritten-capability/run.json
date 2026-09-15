@@ -1,0 +1,39 @@
+{
+  "run_id": "rep_20260915_125507_aca5",
+  "kind": "replay",
+  "duration_ms": 1326,
+  "llm_usage": {
+    "calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "capability": "fakebank.member.get_savings_balance@1.0.0",
+  "status": "success",
+  "code": null,
+  "inputs": {
+    "member_number": "{{member_number}}"
+  },
+  "result": {
+    "invocation_id": "rep_20260915_125507_aca5",
+    "capability": "fakebank.member.get_savings_balance@1.0.0",
+    "content_hash": "sha256:de521db14905ffe33c2d1162672f8532548c66fdf225823078653ae5ffd1c5b1",
+    "profile_hash": "sha256:d3898505715a0d8bf4d590cddaa821204c47bdef06ab47336c81d4489c99b348",
+    "mode": "unattended",
+    "status": "success",
+    "outputs": {
+      "savings_balance": "«financial»"
+    },
+    "outcome": null,
+    "error": null,
+    "recoveries": [],
+    "warnings": [],
+    "interventions": [],
+    "ui_touched": true,
+    "side_effects_possible": false,
+    "timing_ms": {
+      "total": 1323
+    },
+    "evidence": "runs/rep_20260915_125507_aca5"
+  }
+}

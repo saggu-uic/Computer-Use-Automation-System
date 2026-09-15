@@ -1,0 +1,14 @@
+{% extends "_base.html" %}
+{% block content %}
+<h2>MEMBER INQUIRY</h2>
+<form name="F12" method="GET" action="/cgi/MBRINQ">
+<table cellpadding="2">
+<tr>
+<td><font size="2"><b>MEMBER #</b></font></td>
+<td><input type="text" name="F0031" size="12" maxlength="12"></td>
+<td><input type="submit" value="GO"></td>
+</tr>
+</table>
+</form>
+{% if message %}<table><tr><td class="err">{{ message }}</td></tr></table>{% endif %}
+{% endblock %}

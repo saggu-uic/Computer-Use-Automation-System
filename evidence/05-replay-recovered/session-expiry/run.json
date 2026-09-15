@@ -1,0 +1,44 @@
+{
+  "run_id": "rep_20260915_125532_9695",
+  "kind": "replay",
+  "duration_ms": 1767,
+  "llm_usage": {
+    "calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "capability": "fakebank.member.get_savings_balance@1.1.0",
+  "status": "success",
+  "code": null,
+  "inputs": {
+    "member_number": "{{member_number}}"
+  },
+  "result": {
+    "invocation_id": "rep_20260915_125532_9695",
+    "capability": "fakebank.member.get_savings_balance@1.1.0",
+    "content_hash": "sha256:b18a8684c2731716a0c24f063b0c6c8096b8fea0b85d783c001e761ff40e1c36",
+    "profile_hash": "sha256:d3898505715a0d8bf4d590cddaa821204c47bdef06ab47336c81d4489c99b348",
+    "mode": "unattended",
+    "status": "success",
+    "outputs": {
+      "savings_balance": "«financial»"
+    },
+    "outcome": null,
+    "error": null,
+    "recoveries": [
+      {
+        "code": "SESSION_RENEWED_RESTARTED",
+        "step_id": "click_go_button"
+      }
+    ],
+    "warnings": [],
+    "interventions": [],
+    "ui_touched": true,
+    "side_effects_possible": false,
+    "timing_ms": {
+      "total": 1764
+    },
+    "evidence": "runs/rep_20260915_125532_9695"
+  }
+}

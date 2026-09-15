@@ -1,0 +1,30 @@
+{% extends "_base.html" %}
+{% block content %}
+<h2>MEMBER DETAIL&nbsp;&nbsp;{{ member.number }}&nbsp;&nbsp;{{ member.name }}</h2>
+<table cellpadding="2">
+<tr><td><b>TAX ID</b></td><td>{{ member.tax_id }}</td></tr>
+<tr><td><b>MEMBER SINCE</b></td><td>{{ member.member_since }}</td></tr>
+</table>
+<br>
+<table border="1" cellpadding="3" cellspacing="0">
+<caption align="left"><b>SHARE ACCOUNTS</b></caption>
+<tr><td><b>TYPE</b></td><td><b>SHARE ID</b></td><td><b>BALANCE</b></td><td><b>STATUS</b></td><td>&nbsp;</td></tr>
+{% for s in shares %}
+<tr>
+<td>{{ s.type }}</td><td>{{ s.share_id }}</td><td align="right">{{ s.balance }}</td><td>{{ s.status }}</td>
+<td>{% if s.status == "ACTIVE" %}<form name="C{{ loop.index }}" method="POST" action="/cgi/SHRCLS" style="margin:0"><input type="hidden" name="m" value="{{ member.number }}"><input type="hidden" name="s" value="{{ s.share_id }}"><input type="button" value="CLOSE SHARE" onclick="if (confirm('CLOSE SHARE {{ s.share_id }}?')) { document.forms['C{{ loop.index }}'].submit(); }"></form>{% endif %}</td>
+</tr>
+{% endfor %}
+</table>
+<br>
+<table cellpadding="2">
+<tr>
+<td><input type="button" value="TRANS HIST" onclick="location.href='/cgi/MBRTRN?m={{ member.number }}'"></td>
+<td><input type="button" value="NEW INQUIRY" onclick="location.href='/cgi/MBRINQ'"></td>
+</tr>
+</table>
+<br>
+<table border="1" cellpadding="3" cellspacing="0" width="520">
+<tr><td width="130"><b>MEMBER NOTES</b></td><td>{{ member.notes }}</td></tr>
+</table>
+{% endblock %}

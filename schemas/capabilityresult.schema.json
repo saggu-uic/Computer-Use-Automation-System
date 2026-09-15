@@ -1,0 +1,300 @@
+{
+  "$defs": {
+    "ErrorInfo": {
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "caller_error",
+            "configuration",
+            "policy",
+            "automation",
+            "app",
+            "in_doubt",
+            "human",
+            "infrastructure"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "phase": {
+          "enum": [
+            "preflight",
+            "execution",
+            "verification"
+          ],
+          "title": "Phase",
+          "type": "string"
+        },
+        "retryable": {
+          "title": "Retryable",
+          "type": "boolean"
+        },
+        "message": {
+          "default": "",
+          "title": "Message",
+          "type": "string"
+        },
+        "step_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Step Id"
+        },
+        "expected": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Expected"
+        },
+        "observed": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed"
+        },
+        "fields": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fields"
+        },
+        "evidence": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Evidence"
+        },
+        "intervention": {
+          "anyOf": [
+            {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Intervention"
+        }
+      },
+      "required": [
+        "code",
+        "category",
+        "phase",
+        "retryable"
+      ],
+      "title": "ErrorInfo",
+      "type": "object"
+    },
+    "OutcomeInfo": {
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "message": {
+          "default": "",
+          "title": "Message",
+          "type": "string"
+        },
+        "at_step": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "At Step"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "title": "OutcomeInfo",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "invocation_id": {
+      "title": "Invocation Id",
+      "type": "string"
+    },
+    "capability": {
+      "title": "Capability",
+      "type": "string"
+    },
+    "content_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Content Hash"
+    },
+    "profile_hash": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Profile Hash"
+    },
+    "mode": {
+      "default": "unattended",
+      "enum": [
+        "attended",
+        "unattended"
+      ],
+      "title": "Mode",
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "success",
+        "business_outcome",
+        "failure"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "outputs": {
+      "additionalProperties": true,
+      "title": "Outputs",
+      "type": "object"
+    },
+    "outcome": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/OutcomeInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "error": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ErrorInfo"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "recoveries": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Recoveries",
+      "type": "array"
+    },
+    "warnings": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Warnings",
+      "type": "array"
+    },
+    "interventions": {
+      "items": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "title": "Interventions",
+      "type": "array"
+    },
+    "ui_touched": {
+      "default": false,
+      "title": "Ui Touched",
+      "type": "boolean"
+    },
+    "side_effects_possible": {
+      "default": false,
+      "title": "Side Effects Possible",
+      "type": "boolean"
+    },
+    "timing_ms": {
+      "additionalProperties": {
+        "type": "integer"
+      },
+      "title": "Timing Ms",
+      "type": "object"
+    },
+    "evidence": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Evidence"
+    }
+  },
+  "required": [
+    "invocation_id",
+    "capability",
+    "status"
+  ],
+  "title": "CapabilityResult",
+  "type": "object"
+}

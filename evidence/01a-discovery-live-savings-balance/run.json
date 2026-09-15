@@ -1,0 +1,39 @@
+{
+  "run_id": "disc_20260915_103601_d95d",
+  "kind": "discovery",
+  "duration_ms": 22587,
+  "llm_usage": {
+    "calls": 5,
+    "input_tokens": 16600,
+    "output_tokens": 484,
+    "cost_usd": 0.0951
+  },
+  "goal": "What is the current regular savings balance for member {{value_1}}?",
+  "status": "completed",
+  "code": null,
+  "message": "Extracted regular savings balance for member {{value_1}}.",
+  "capability_name": "get_regular_savings_balance",
+  "target": "http://127.0.0.1:8700",
+  "product": "fakebank-core",
+  "planner": {
+    "provider": "anthropic",
+    "model": "claude-opus-5"
+  },
+  "inputs": [
+    {
+      "placeholder": "value_1",
+      "kind": "digits",
+      "explicit_name": null,
+      "explicit_type": null
+    }
+  ],
+  "declared_outputs": {},
+  "extracted": {
+    "regular_savings_balance": {
+      "type": "money",
+      "columns": null,
+      "classification": "financial",
+      "target": "cell BALANCE where TYPE=REGULAR SAVINGS in \"SHARE ACCOUNTS\" [main]"
+    }
+  }
+}

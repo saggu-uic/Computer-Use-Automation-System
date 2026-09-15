@@ -1,0 +1,44 @@
+{
+  "run_id": "disc_20260915_103648_ba1c",
+  "kind": "discovery",
+  "duration_ms": 26015,
+  "llm_usage": {
+    "calls": 6,
+    "input_tokens": 20864,
+    "output_tokens": 550,
+    "cost_usd": 0.11807
+  },
+  "goal": "Show recent transactions for member {{value_1}}",
+  "status": "completed",
+  "code": null,
+  "message": "Extracted the 10-row recent transaction history for the member.",
+  "capability_name": "get_member_recent_transactions",
+  "target": "http://127.0.0.1:8700",
+  "product": "fakebank-core",
+  "planner": {
+    "provider": "anthropic",
+    "model": "claude-opus-5"
+  },
+  "inputs": [
+    {
+      "placeholder": "value_1",
+      "kind": "digits",
+      "explicit_name": null,
+      "explicit_type": null
+    }
+  ],
+  "declared_outputs": {},
+  "extracted": {
+    "recent_transactions": {
+      "type": "table",
+      "columns": {
+        "date": "date",
+        "share": "string",
+        "description": "string",
+        "amount": "money"
+      },
+      "classification": "financial",
+      "target": "table \"TRANSACTION HISTORY\" [main]"
+    }
+  }
+}

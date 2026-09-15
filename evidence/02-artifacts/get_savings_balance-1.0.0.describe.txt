@@ -1,0 +1,22 @@
+fakebank.member.get_savings_balance  v1.0.0  [draft]      fakebank-core >=3.0,<4.0 (web)
+
+WHAT IT DOES   Return the current balance of a member's regular savings share.
+NEEDS          member_number  string ^[0-9]{6,10}$ (pii)
+RETURNS        savings_balance  money (financial)
+MAY INSTEAD RETURN   MEMBER_NOT_FOUND · INVALID_MEMBER_NUMBER · ACCOUNT_RESTRICTED · NO_SAVINGS_ACCOUNT
+SIDE EFFECTS   none (idempotent)
+
+STEPS
+  1. Click MEMBER INQ link in the navigation frame         expect member_inquiry → continue
+  2. Type {{member_number}} into Member number input on MEMBER INQUIRY expect verify the field kept the value
+  3. Click Search button next to MEMBER #                  expect member_detail → continue
+                                                                | member_not_found → MEMBER_NOT_FOUND
+                                                                | invalid_member_number → INVALID_MEMBER_NUMBER
+                                                                | access_restricted → ACCOUNT_RESTRICTED
+  4. Read savings_balance (money) from BALANCE of the REGULAR SAVINGS row in SHARE ACCOUNTS expect row missing → NO_SAVINGS_ACCOUNT
+
+APP-WIDE HANDLING (profile)   system_notice → interstitial · supervisor_override → needs_human · session_expired → session_lost · system_error → app_error · operator_not_authorized → app_error · loading → transient
+SUCCESS WHEN   on member_detail AND savings_balance is valid
+
+ROBUSTNESS     4/4 targets have ≥1 verified durable locator; 1 have ≥2; 0 fragile-only
+PROVENANCE     hand-written reference: proves the artifact and replay contract independently of discovery · sha256:de521db14905ffe3

@@ -1,0 +1,38 @@
+{
+  "run_id": "disc_20260915_103744_5065",
+  "kind": "discovery",
+  "duration_ms": 941611,
+  "llm_usage": {
+    "calls": 7,
+    "input_tokens": 22850,
+    "output_tokens": 878,
+    "cost_usd": 0.1362
+  },
+  "goal": "Wire {{value_1}} from member {{value_2}} to an external bank account",
+  "status": "failed",
+  "code": "HUMAN_TIMEOUT",
+  "message": "intervention expired",
+  "capability_name": null,
+  "target": "http://127.0.0.1:8700",
+  "product": "fakebank-core",
+  "planner": {
+    "provider": "anthropic",
+    "model": "claude-opus-5"
+  },
+  "inputs": [
+    {
+      "placeholder": "value_1",
+      "kind": "money",
+      "explicit_name": null,
+      "explicit_type": null
+    },
+    {
+      "placeholder": "value_2",
+      "kind": "digits",
+      "explicit_name": null,
+      "explicit_type": null
+    }
+  ],
+  "declared_outputs": {},
+  "extracted": {}
+}

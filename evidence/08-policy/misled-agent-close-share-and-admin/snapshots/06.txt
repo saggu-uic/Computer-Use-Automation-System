@@ -1,0 +1,9 @@
+FRAME banner  route=/cgi/BANNER
+  text "FAKEBANK CORE R3.2"
+  text "12:56:08"
+FRAME nav  route=/cgi/NAV
+  row: [e1] link "MAIN MENU"
+  row: [e2] link "MEMBER INQ"
+  row: [e3] link "REPORTS"
+  row: [e4] link "ADMIN"
+  row: [e5] link "SIGN OFF"

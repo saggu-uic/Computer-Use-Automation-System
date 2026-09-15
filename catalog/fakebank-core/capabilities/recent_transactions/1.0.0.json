@@ -1,0 +1,385 @@
+{
+  "schema_version": "1.0",
+  "kind": "capability",
+  "id": "fakebank.member.recent_transactions",
+  "version": "1.0.0",
+  "status": "validated",
+  "app": {
+    "product": "fakebank-core",
+    "product_versions": ">=3.0,<4.0",
+    "surface": "web",
+    "profile": {
+      "version": "3.2.0",
+      "hash": "sha256:d3898505715a0d8bf4d590cddaa821204c47bdef06ab47336c81d4489c99b348"
+    }
+  },
+  "contract": {
+    "summary": "Show recent transactions for member {{member_number}}",
+    "description": "",
+    "inputs": {
+      "member_number": {
+        "type": "string",
+        "pattern": "^[0-9]+$",
+        "classification": "pii",
+        "description": "Credit union member number",
+        "named_from": "textbox labelled \"MEMBER #\""
+      }
+    },
+    "outputs": {
+      "recent_transactions": {
+        "type": "table",
+        "columns": {
+          "date": "date",
+          "share": "string",
+          "description": "string",
+          "amount": "money"
+        },
+        "max_rows": 50,
+        "classification": "financial",
+        "description": ""
+      }
+    },
+    "outcomes": [
+      {
+        "code": "MEMBER_NOT_FOUND",
+        "description": "No member exists with this number."
+      },
+      {
+        "code": "INVALID_MEMBER_NUMBER",
+        "description": "The application rejected the member number format; the caller must supply a valid one."
+      },
+      {
+        "code": "ACCOUNT_RESTRICTED",
+        "description": "The member record is restricted for this operator."
+      },
+      {
+        "code": "NO_TRANSACTIONS",
+        "description": "The member has no transactions in the last 90 days."
+      }
+    ],
+    "side_effects": "none",
+    "idempotent": true,
+    "irreversible_steps": []
+  },
+  "start": {
+    "screen": "main_menu"
+  },
+  "steps": [
+    {
+      "id": "click_member_inq_link",
+      "action": "click",
+      "target": "member_inq_link",
+      "risk": "safe",
+      "expect": [
+        {
+          "screen": "member_inquiry",
+          "then": "continue"
+        }
+      ],
+      "origin": "agent",
+      "description": "link \"MEMBER INQ\" (nav frame)"
+    },
+    {
+      "id": "enter_member_number_field",
+      "action": "type",
+      "target": "member_number_field",
+      "value": "{{member_number}}",
+      "risk": "safe",
+      "verify": "value_matches",
+      "origin": "agent",
+      "description": "textbox \"MEMBER #\" (main frame)"
+    },
+    {
+      "id": "click_go_button",
+      "action": "click",
+      "target": "go_button",
+      "risk": "safe",
+      "expect": [
+        {
+          "screen": "member_detail",
+          "then": "continue"
+        },
+        {
+          "screen": "member_not_found",
+          "then": {
+            "outcome": "MEMBER_NOT_FOUND"
+          }
+        },
+        {
+          "screen": "invalid_member_number",
+          "then": {
+            "outcome": "INVALID_MEMBER_NUMBER"
+          }
+        },
+        {
+          "screen": "access_restricted",
+          "then": {
+            "outcome": "ACCOUNT_RESTRICTED"
+          }
+        }
+      ],
+      "origin": "agent",
+      "description": "button \"GO\" (main frame)"
+    },
+    {
+      "id": "click_trans_hist_button",
+      "action": "click",
+      "target": "trans_hist_button",
+      "risk": "safe",
+      "expect": [
+        {
+          "screen": "member_transactions",
+          "then": "continue"
+        },
+        {
+          "screen": "access_restricted",
+          "then": {
+            "outcome": "ACCOUNT_RESTRICTED"
+          }
+        },
+        {
+          "screen": "no_transactions",
+          "then": {
+            "outcome": "NO_TRANSACTIONS"
+          }
+        }
+      ],
+      "origin": "agent",
+      "description": "button \"TRANS HIST\" (main frame)"
+    },
+    {
+      "id": "read_recent_transactions",
+      "action": "extract",
+      "target": "transaction_history_table",
+      "risk": "safe",
+      "into": "recent_transactions",
+      "parse": "table",
+      "columns": {
+        "date": "date",
+        "share": "string",
+        "description": "string",
+        "amount": "money"
+      },
+      "origin": "agent",
+      "description": "Read recent_transactions"
+    }
+  ],
+  "targets": {
+    "member_inq_link": {
+      "description": "link \"MEMBER INQ\" (nav frame)",
+      "locators": [
+        {
+          "kind": "role",
+          "frame": "nav",
+          "role": "link",
+          "name": "MEMBER INQ"
+        },
+        {
+          "kind": "text",
+          "frame": "nav",
+          "text": "MEMBER INQ"
+        },
+        {
+          "kind": "css",
+          "frame": "nav",
+          "value": "table > tbody > tr:nth-of-type(2) > td > a",
+          "fragile": true
+        }
+      ]
+    },
+    "member_number_field": {
+      "description": "textbox \"MEMBER #\" (main frame)",
+      "locators": [
+        {
+          "kind": "label",
+          "frame": "main",
+          "role": "textbox",
+          "label": "MEMBER #"
+        },
+        {
+          "kind": "css",
+          "frame": "main",
+          "value": "form[name=\"F12\"] > table > tbody > tr > td:nth-of-type(2) > input[name=\"F0031\"]",
+          "fragile": true
+        }
+      ]
+    },
+    "go_button": {
+      "description": "button \"GO\" (main frame)",
+      "locators": [
+        {
+          "kind": "role",
+          "frame": "main",
+          "role": "button",
+          "name": "GO"
+        },
+        {
+          "kind": "near_text",
+          "frame": "main",
+          "role": "button",
+          "text": "MEMBER #",
+          "direction": "right"
+        },
+        {
+          "kind": "css",
+          "frame": "main",
+          "value": "form[name=\"F12\"] > table > tbody > tr > td:nth-of-type(3) > input",
+          "fragile": true
+        }
+      ]
+    },
+    "trans_hist_button": {
+      "description": "button \"TRANS HIST\" (main frame)",
+      "locators": [
+        {
+          "kind": "role",
+          "frame": "main",
+          "role": "button",
+          "name": "TRANS HIST"
+        },
+        {
+          "kind": "css",
+          "frame": "main",
+          "value": "table:nth-of-type(3) > tbody > tr > td:nth-of-type(1) > input",
+          "fragile": true
+        }
+      ]
+    },
+    "transaction_history_table": {
+      "description": "table \"TRANSACTION HISTORY\" (main frame)",
+      "locators": [
+        {
+          "kind": "table",
+          "frame": "main",
+          "table": "TRANSACTION HISTORY"
+        }
+      ]
+    }
+  },
+  "screens": {
+    "access_restricted": {
+      "kind": "outcome",
+      "description": "The member record is restricted for this operator.",
+      "match": [
+        {
+          "heading": "RECORD RESTRICTED",
+          "frame": "main"
+        }
+      ],
+      "outcome": "ACCOUNT_RESTRICTED"
+    },
+    "invalid_member_number": {
+      "kind": "outcome",
+      "description": "The application rejected the member number format; the caller must supply a valid one.",
+      "match": [
+        {
+          "text_contains": "MEMBER # MUST BE 6-10 DIGITS",
+          "frame": "main"
+        }
+      ],
+      "outcome": "INVALID_MEMBER_NUMBER"
+    },
+    "main_menu": {
+      "kind": "page",
+      "match": [
+        {
+          "heading": "MAIN MENU",
+          "frame": "main"
+        }
+      ]
+    },
+    "member_detail": {
+      "kind": "page",
+      "description": "Detail page for the requested member (right-record check)",
+      "match": [
+        {
+          "heading_contains": "MEMBER DETAIL",
+          "frame": "main"
+        },
+        {
+          "heading_contains": "{{member_number}}",
+          "frame": "main"
+        }
+      ]
+    },
+    "member_inquiry": {
+      "kind": "page",
+      "match": [
+        {
+          "heading": "MEMBER INQUIRY",
+          "frame": "main"
+        }
+      ]
+    },
+    "member_not_found": {
+      "kind": "outcome",
+      "description": "No member exists with this number.",
+      "match": [
+        {
+          "text_contains": "NO MEMBER FOUND",
+          "frame": "main"
+        }
+      ],
+      "outcome": "MEMBER_NOT_FOUND"
+    },
+    "member_transactions": {
+      "kind": "page",
+      "description": "Transaction history for the requested member",
+      "match": [
+        {
+          "heading_contains": "TRANSACTION HISTORY",
+          "frame": "main"
+        },
+        {
+          "heading_contains": "{{member_number}}",
+          "frame": "main"
+        },
+        {
+          "not": {
+            "text_contains": "NO TRANSACTIONS IN LAST 90 DAYS"
+          },
+          "frame": "main"
+        }
+      ]
+    },
+    "no_transactions": {
+      "kind": "outcome",
+      "description": "The member has no transactions in the last 90 days.",
+      "match": [
+        {
+          "text_contains": "NO TRANSACTIONS IN LAST 90 DAYS",
+          "frame": "main"
+        }
+      ],
+      "outcome": "NO_TRANSACTIONS"
+    }
+  },
+  "success": {
+    "all": [
+      {
+        "screen": "member_transactions"
+      },
+      {
+        "output_valid": "recent_transactions"
+      }
+    ]
+  },
+  "timeouts": {
+    "step_default_ms": 6000,
+    "run_max_ms": 90000
+  },
+  "provenance": {
+    "discovered_from_run": "disc_20260915_125449_1d24",
+    "goal": "Show recent transactions for member {{member_number}}",
+    "planner": {
+      "provider": "scripted",
+      "model": "scripted-recent-transactions"
+    },
+    "compiled_at": "2026-09-15T17:54:57Z",
+    "validated_by_runs": [
+      "val_20260915_125457_973e",
+      "val_20260915_125458_139d"
+    ],
+    "content_hash": "sha256:e34efd721c6273de377f4537075ca026314208f7142200480c84355f72e7ebe3"
+  }
+}

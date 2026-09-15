@@ -1,0 +1,1270 @@
+{
+  "$defs": {
+    "AppRef": {
+      "additionalProperties": false,
+      "properties": {
+        "product": {
+          "title": "Product",
+          "type": "string"
+        },
+        "product_versions": {
+          "default": ">=3.0,<4.0",
+          "title": "Product Versions",
+          "type": "string"
+        },
+        "surface": {
+          "const": "web",
+          "default": "web",
+          "title": "Surface",
+          "type": "string"
+        },
+        "profile": {
+          "$ref": "#/$defs/ProfileRef"
+        }
+      },
+      "required": [
+        "product",
+        "profile"
+      ],
+      "title": "AppRef",
+      "type": "object"
+    },
+    "Contract": {
+      "additionalProperties": false,
+      "properties": {
+        "summary": {
+          "title": "Summary",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "inputs": {
+          "additionalProperties": {
+            "$ref": "#/$defs/InputSpec"
+          },
+          "title": "Inputs",
+          "type": "object"
+        },
+        "outputs": {
+          "additionalProperties": {
+            "$ref": "#/$defs/OutputSpec"
+          },
+          "title": "Outputs",
+          "type": "object"
+        },
+        "outcomes": {
+          "items": {
+            "$ref": "#/$defs/OutcomeSpec"
+          },
+          "title": "Outcomes",
+          "type": "array"
+        },
+        "side_effects": {
+          "default": "none",
+          "enum": [
+            "none",
+            "irreversible"
+          ],
+          "title": "Side Effects",
+          "type": "string"
+        },
+        "idempotent": {
+          "default": true,
+          "title": "Idempotent",
+          "type": "boolean"
+        },
+        "irreversible_steps": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Irreversible Steps",
+          "type": "array"
+        }
+      },
+      "required": [
+        "summary"
+      ],
+      "title": "Contract",
+      "type": "object"
+    },
+    "DataClass": {
+      "enum": [
+        "public",
+        "internal",
+        "pii",
+        "financial",
+        "secret"
+      ],
+      "title": "DataClass",
+      "type": "string"
+    },
+    "ExpectCase": {
+      "additionalProperties": false,
+      "properties": {
+        "screen": {
+          "title": "Screen",
+          "type": "string"
+        },
+        "then": {
+          "anyOf": [
+            {
+              "const": "continue",
+              "type": "string"
+            },
+            {
+              "$ref": "#/$defs/ThenAction"
+            }
+          ],
+          "default": "continue",
+          "title": "Then"
+        }
+      },
+      "required": [
+        "screen"
+      ],
+      "title": "ExpectCase",
+      "type": "object"
+    },
+    "IfMissing": {
+      "additionalProperties": false,
+      "properties": {
+        "then": {
+          "$ref": "#/$defs/ThenAction"
+        }
+      },
+      "required": [
+        "then"
+      ],
+      "title": "IfMissing",
+      "type": "object"
+    },
+    "InputSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "default": "string",
+          "enum": [
+            "string",
+            "integer",
+            "decimal",
+            "money",
+            "date",
+            "enum",
+            "boolean"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "pattern": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Pattern"
+        },
+        "min_length": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Min Length"
+        },
+        "max_length": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Length"
+        },
+        "values": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Values"
+        },
+        "classification": {
+          "$ref": "#/$defs/DataClass",
+          "default": "internal"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "named_from": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Named From"
+        }
+      },
+      "title": "InputSpec",
+      "type": "object"
+    },
+    "Locator": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "role",
+            "label",
+            "near_text",
+            "table_cell",
+            "table",
+            "text",
+            "css"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "frame": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Frame"
+        },
+        "role": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Role"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "exact": {
+          "default": true,
+          "title": "Exact",
+          "type": "boolean"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "text": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text"
+        },
+        "direction": {
+          "anyOf": [
+            {
+              "enum": [
+                "left",
+                "right"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Direction"
+        },
+        "table": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Table"
+        },
+        "column": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Column"
+        },
+        "row_where": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Row Where"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "within_dialog": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Within Dialog"
+        },
+        "fragile": {
+          "default": false,
+          "title": "Fragile",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "title": "Locator",
+      "type": "object"
+    },
+    "OutcomeSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "code": {
+          "title": "Code",
+          "type": "string"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "code"
+      ],
+      "title": "OutcomeSpec",
+      "type": "object"
+    },
+    "OutputSpec": {
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "enum": [
+            "string",
+            "integer",
+            "decimal",
+            "money",
+            "date",
+            "enum",
+            "boolean",
+            "table"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "columns": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Columns"
+        },
+        "max_rows": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Rows"
+        },
+        "classification": {
+          "$ref": "#/$defs/DataClass",
+          "default": "internal"
+        },
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "OutputSpec",
+      "type": "object"
+    },
+    "ProfileRef": {
+      "additionalProperties": false,
+      "properties": {
+        "version": {
+          "title": "Version",
+          "type": "string"
+        },
+        "hash": {
+          "title": "Hash",
+          "type": "string"
+        }
+      },
+      "required": [
+        "version",
+        "hash"
+      ],
+      "title": "ProfileRef",
+      "type": "object"
+    },
+    "Provenance": {
+      "additionalProperties": false,
+      "properties": {
+        "authored_by": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Authored By"
+        },
+        "discovered_from_run": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Discovered From Run"
+        },
+        "goal": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Goal"
+        },
+        "planner": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Planner"
+        },
+        "compiled_at": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Compiled At"
+        },
+        "validated_by_runs": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Validated By Runs",
+          "type": "array"
+        },
+        "review_flags": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Review Flags",
+          "type": "array"
+        },
+        "content_hash": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Content Hash"
+        }
+      },
+      "title": "Provenance",
+      "type": "object"
+    },
+    "RoleRef": {
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "title": "Role",
+          "type": "string"
+        },
+        "name": {
+          "title": "Name",
+          "type": "string"
+        }
+      },
+      "required": [
+        "role",
+        "name"
+      ],
+      "title": "RoleRef",
+      "type": "object"
+    },
+    "Screen": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "default": "page",
+          "enum": [
+            "page",
+            "outcome",
+            "interstitial",
+            "needs_human",
+            "session_lost",
+            "app_error",
+            "transient"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        },
+        "match": {
+          "items": {
+            "$ref": "#/$defs/ScreenPredicate"
+          },
+          "minItems": 1,
+          "title": "Match",
+          "type": "array"
+        },
+        "outcome": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Outcome"
+        },
+        "may_follow": {
+          "items": {
+            "type": "string"
+          },
+          "title": "May Follow",
+          "type": "array"
+        },
+        "handler": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Handler"
+        },
+        "max_per_run": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Max Per Run"
+        },
+        "escalate": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Escalate"
+        },
+        "fail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fail"
+        },
+        "proposed": {
+          "default": false,
+          "title": "Proposed",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "match"
+      ],
+      "title": "Screen",
+      "type": "object"
+    },
+    "ScreenPredicate": {
+      "additionalProperties": false,
+      "properties": {
+        "heading": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Heading"
+        },
+        "heading_contains": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Heading Contains"
+        },
+        "text_contains": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Text Contains"
+        },
+        "dialog_text_contains": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dialog Text Contains"
+        },
+        "route_matches": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Route Matches"
+        },
+        "role_exists": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RoleRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "not": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScreenPredicate"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "frame": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Frame"
+        }
+      },
+      "title": "ScreenPredicate",
+      "type": "object"
+    },
+    "StartRef": {
+      "additionalProperties": false,
+      "properties": {
+        "screen": {
+          "title": "Screen",
+          "type": "string"
+        }
+      },
+      "required": [
+        "screen"
+      ],
+      "title": "StartRef",
+      "type": "object"
+    },
+    "Step": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "action": {
+          "enum": [
+            "click",
+            "type",
+            "select",
+            "check",
+            "press_key",
+            "accept_dialog",
+            "dismiss_dialog",
+            "extract",
+            "wait"
+          ],
+          "title": "Action",
+          "type": "string"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Target"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "checked": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Checked"
+        },
+        "key": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Key"
+        },
+        "risk": {
+          "default": "safe",
+          "enum": [
+            "safe",
+            "irreversible"
+          ],
+          "title": "Risk",
+          "type": "string"
+        },
+        "verify": {
+          "anyOf": [
+            {
+              "const": "value_matches",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Verify"
+        },
+        "expect": {
+          "items": {
+            "$ref": "#/$defs/ExpectCase"
+          },
+          "title": "Expect",
+          "type": "array"
+        },
+        "timeout_ms": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Timeout Ms"
+        },
+        "into": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Into"
+        },
+        "parse": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parse"
+        },
+        "columns": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "type": "string"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Columns"
+        },
+        "if_missing": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/IfMissing"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "origin": {
+          "default": "agent",
+          "enum": [
+            "agent",
+            "author",
+            "human"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "description": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Description"
+        }
+      },
+      "required": [
+        "id",
+        "action"
+      ],
+      "title": "Step",
+      "type": "object"
+    },
+    "Success": {
+      "additionalProperties": false,
+      "properties": {
+        "all": {
+          "items": {
+            "$ref": "#/$defs/SuccessCondition"
+          },
+          "title": "All",
+          "type": "array"
+        }
+      },
+      "title": "Success",
+      "type": "object"
+    },
+    "SuccessCondition": {
+      "additionalProperties": false,
+      "properties": {
+        "screen": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Screen"
+        },
+        "output_valid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Output Valid"
+        }
+      },
+      "title": "SuccessCondition",
+      "type": "object"
+    },
+    "Target": {
+      "additionalProperties": false,
+      "properties": {
+        "description": {
+          "default": "",
+          "title": "Description",
+          "type": "string"
+        },
+        "locators": {
+          "items": {
+            "$ref": "#/$defs/Locator"
+          },
+          "minItems": 1,
+          "title": "Locators",
+          "type": "array"
+        }
+      },
+      "required": [
+        "locators"
+      ],
+      "title": "Target",
+      "type": "object"
+    },
+    "ThenAction": {
+      "additionalProperties": false,
+      "properties": {
+        "outcome": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Outcome"
+        },
+        "fail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Fail"
+        },
+        "escalate": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Escalate"
+        }
+      },
+      "title": "ThenAction",
+      "type": "object"
+    },
+    "Timeouts": {
+      "additionalProperties": false,
+      "properties": {
+        "step_default_ms": {
+          "default": 6000,
+          "title": "Step Default Ms",
+          "type": "integer"
+        },
+        "run_max_ms": {
+          "default": 90000,
+          "title": "Run Max Ms",
+          "type": "integer"
+        }
+      },
+      "title": "Timeouts",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "kind": {
+      "const": "capability",
+      "default": "capability",
+      "title": "Kind",
+      "type": "string"
+    },
+    "id": {
+      "title": "Id",
+      "type": "string"
+    },
+    "version": {
+      "title": "Version",
+      "type": "string"
+    },
+    "status": {
+      "default": "draft",
+      "enum": [
+        "draft",
+        "validated"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "app": {
+      "$ref": "#/$defs/AppRef"
+    },
+    "contract": {
+      "$ref": "#/$defs/Contract"
+    },
+    "start": {
+      "$ref": "#/$defs/StartRef"
+    },
+    "steps": {
+      "items": {
+        "$ref": "#/$defs/Step"
+      },
+      "minItems": 1,
+      "title": "Steps",
+      "type": "array"
+    },
+    "targets": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Target"
+      },
+      "title": "Targets",
+      "type": "object"
+    },
+    "screens": {
+      "additionalProperties": {
+        "$ref": "#/$defs/Screen"
+      },
+      "title": "Screens",
+      "type": "object"
+    },
+    "constants": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Constants",
+      "type": "object"
+    },
+    "success": {
+      "$ref": "#/$defs/Success"
+    },
+    "timeouts": {
+      "$ref": "#/$defs/Timeouts"
+    },
+    "provenance": {
+      "$ref": "#/$defs/Provenance"
+    }
+  },
+  "required": [
+    "id",
+    "version",
+    "app",
+    "contract",
+    "start",
+    "steps",
+    "targets",
+    "screens"
+  ],
+  "title": "Capability",
+  "type": "object"
+}

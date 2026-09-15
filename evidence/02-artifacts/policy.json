@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "product": "fakebank-core",
+  "allowed_origins": [ "http://127.0.0.1:8700" ],
+  "blocked_routes": [ "/cgi/ADMIN*", "/cgi/OPRMAINT*" ],
+  "allowed_actions": [ "click", "type", "select", "check", "press_key", "accept_dialog", "dismiss_dialog", "extract", "wait" ],
+  "allowed_keys": [ "Enter", "Tab", "Escape" ],
+  "risk_rules": [
+    {
+      "id": "R1",
+      "match": { "role": [ "button", "link" ], "name_regex": "CLOSE|DELETE|REVERSE|TRANSFER|WITHDRAW|SUBMIT|CONFIRM|POST|PURGE|APPROVE" },
+      "risk": "irreversible",
+      "note": "Controls whose names signal a committing business change"
+    },
+    {
+      "id": "R2",
+      "match": { "action": "accept_dialog", "dialog_text_regex": "CLOSE|DELETE|SUBMIT|CONFIRM|TRANSFER|PURGE" },
+      "risk": "irreversible",
+      "note": "Accepting a confirmation dialog for a committing change"
+    },
+    {
+      "id": "R3",
+      "match": { "screen": "sign_on", "role": "button", "name": "SIGN ON" },
+      "risk": "safe",
+      "note": "Sign-on is performed by code from the profile"
+    },
+    {
+      "id": "R4",
+      "match": { "screen": "member_inquiry", "role": "button", "name": "GO" },
+      "risk": "safe",
+      "note": "Member search is read-only"
+    },
+    {
+      "id": "R5",
+      "match": { "role": "button", "form_submit": true, "form_method": "POST" },
+      "risk": "irreversible",
+      "note": "Unknown POST submits fail closed"
+    },
+    {
+      "id": "R6",
+      "match": { "role": [ "link", "textbox", "combobox", "checkbox", "radio", "cell", "table" ] },
+      "risk": "safe"
+    }
+  ],
+  "default_risk": "safe",
+  "modes": {
+    "discovery": { "irreversible": "require_approval" },
+    "replay": { "irreversible_declared": "require_approval", "irreversible_undeclared": "block" }
+  }
+}

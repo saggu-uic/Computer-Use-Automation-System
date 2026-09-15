@@ -1,0 +1,26 @@
+{
+  "id": "int_23b06d",
+  "kind": "take_control",
+  "status": "expired",
+  "run_id": "disc_20260915_103744_5065",
+  "mode": "discovery_attended",
+  "capability": null,
+  "goal": "Wire {{value_1}} from member {{value_2}} to an external bank account",
+  "step": {},
+  "reason_code": "STUCK_LOOP",
+  "reason": "the same screen came back three times without progress",
+  "screen_summary": "route /cgi/MBRINQ; headings MEMBER INQUIRY",
+  "screenshot": "interventions/int_23b06d/before.png",
+  "resume_expectation": {
+    "after_step": null,
+    "expected_screens": [],
+    "instructions": "Resolve this in the browser window, leave the application on a screen where the task can continue, then press Resume."
+  },
+  "proposed_action": null,
+  "created_at": "2026-09-15T15:38:24.878Z",
+  "expires_at": "2026-09-15T15:53:24Z",
+  "operator": null,
+  "resolution": null,
+  "note": null,
+  "verification_message": null
+}

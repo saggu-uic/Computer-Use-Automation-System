@@ -1,0 +1,17 @@
+{
+  "name": "scripted-get-savings-balance",
+  "goal": "What is the current regular savings balance for member 100245?",
+  "steps": [
+    { "tool": "click", "find": { "role": "link", "name": "MEMBER INQ", "frame": "nav" }, "why": "Member lookups start from the member inquiry screen" },
+    { "tool": "type_text", "find": { "role": "textbox", "label": "MEMBER #" }, "text": "{{value_1}}", "why": "Enter the member number from the goal" },
+    { "tool": "click", "find": { "role": "button", "name": "GO" }, "why": "Run the member search" },
+    {
+      "tool": "extract",
+      "find": { "cell": { "table": "SHARE ACCOUNTS", "column": "BALANCE", "row": { "TYPE": "REGULAR SAVINGS" } } },
+      "output_name": "savings_balance",
+      "value_type": "money",
+      "why": "The goal asks for the regular savings balance, which is in the BALANCE column of that row"
+    },
+    { "tool": "done", "summary": "Read the member's regular savings balance", "capability_name": "get_savings_balance" }
+  ]
+}

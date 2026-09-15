@@ -1,0 +1,270 @@
+{
+  "$defs": {
+    "DiscoveryMode": {
+      "additionalProperties": false,
+      "properties": {
+        "irreversible": {
+          "default": "require_approval",
+          "enum": [
+            "allow",
+            "block",
+            "require_approval"
+          ],
+          "title": "Irreversible",
+          "type": "string"
+        }
+      },
+      "title": "DiscoveryMode",
+      "type": "object"
+    },
+    "Modes": {
+      "additionalProperties": false,
+      "properties": {
+        "discovery": {
+          "$ref": "#/$defs/DiscoveryMode"
+        },
+        "replay": {
+          "$ref": "#/$defs/ReplayMode"
+        }
+      },
+      "title": "Modes",
+      "type": "object"
+    },
+    "ReplayMode": {
+      "additionalProperties": false,
+      "properties": {
+        "irreversible_declared": {
+          "default": "require_approval",
+          "enum": [
+            "allow",
+            "block",
+            "require_approval"
+          ],
+          "title": "Irreversible Declared",
+          "type": "string"
+        },
+        "irreversible_undeclared": {
+          "default": "block",
+          "enum": [
+            "allow",
+            "block",
+            "require_approval"
+          ],
+          "title": "Irreversible Undeclared",
+          "type": "string"
+        }
+      },
+      "title": "ReplayMode",
+      "type": "object"
+    },
+    "RiskMatch": {
+      "additionalProperties": false,
+      "properties": {
+        "role": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "items": {
+                "type": "string"
+              },
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Role"
+        },
+        "name": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name"
+        },
+        "name_regex": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Name Regex"
+        },
+        "screen": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Screen"
+        },
+        "action": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Action"
+        },
+        "dialog_text_regex": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dialog Text Regex"
+        },
+        "form_submit": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Form Submit"
+        },
+        "form_method": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Form Method"
+        }
+      },
+      "title": "RiskMatch",
+      "type": "object"
+    },
+    "RiskRule": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "match": {
+          "$ref": "#/$defs/RiskMatch"
+        },
+        "risk": {
+          "enum": [
+            "safe",
+            "irreversible"
+          ],
+          "title": "Risk",
+          "type": "string"
+        },
+        "note": {
+          "default": "",
+          "title": "Note",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "match",
+        "risk"
+      ],
+      "title": "RiskRule",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "product": {
+      "title": "Product",
+      "type": "string"
+    },
+    "allowed_origins": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Allowed Origins",
+      "type": "array"
+    },
+    "blocked_routes": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Blocked Routes",
+      "type": "array"
+    },
+    "allowed_actions": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Allowed Actions",
+      "type": "array"
+    },
+    "allowed_keys": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Allowed Keys",
+      "type": "array"
+    },
+    "risk_rules": {
+      "items": {
+        "$ref": "#/$defs/RiskRule"
+      },
+      "title": "Risk Rules",
+      "type": "array"
+    },
+    "default_risk": {
+      "default": "safe",
+      "enum": [
+        "safe",
+        "irreversible"
+      ],
+      "title": "Default Risk",
+      "type": "string"
+    },
+    "modes": {
+      "$ref": "#/$defs/Modes"
+    }
+  },
+  "required": [
+    "product",
+    "allowed_origins",
+    "allowed_actions",
+    "risk_rules"
+  ],
+  "title": "Policy",
+  "type": "object"
+}

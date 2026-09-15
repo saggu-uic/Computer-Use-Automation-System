@@ -1,0 +1,38 @@
+{
+  "run_id": "disc_20260915_125500_80fb",
+  "kind": "discovery",
+  "duration_ms": 4319,
+  "llm_usage": {
+    "calls": 2,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "goal": "Wire {{value_1}} from member {{value_2}} to an external bank account",
+  "status": "GOAL_NOT_ACHIEVABLE",
+  "code": "GOAL_NOT_ACHIEVABLE",
+  "message": "FakeBank Core offers member inquiry, reports and administration only; there is no wire or external transfer function, so this goal cannot be done in this application.",
+  "capability_name": null,
+  "target": "http://127.0.0.1:59621",
+  "product": "fakebank-core",
+  "planner": {
+    "provider": "scripted",
+    "model": "scripted-wire-transfer-not-possible"
+  },
+  "inputs": [
+    {
+      "placeholder": "value_1",
+      "kind": "money",
+      "explicit_name": null,
+      "explicit_type": null
+    },
+    {
+      "placeholder": "value_2",
+      "kind": "digits",
+      "explicit_name": null,
+      "explicit_type": null
+    }
+  ],
+  "declared_outputs": {},
+  "extracted": {}
+}

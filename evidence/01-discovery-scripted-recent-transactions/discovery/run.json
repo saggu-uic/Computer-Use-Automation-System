@@ -1,0 +1,44 @@
+{
+  "run_id": "disc_20260915_125449_1d24",
+  "kind": "discovery",
+  "duration_ms": 7749,
+  "llm_usage": {
+    "calls": 6,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "goal": "Show recent transactions for member {{value_1}}",
+  "status": "completed",
+  "code": null,
+  "message": "Listed the member's recent transactions",
+  "capability_name": "recent_transactions",
+  "target": "http://127.0.0.1:59621",
+  "product": "fakebank-core",
+  "planner": {
+    "provider": "scripted",
+    "model": "scripted-recent-transactions"
+  },
+  "inputs": [
+    {
+      "placeholder": "value_1",
+      "kind": "digits",
+      "explicit_name": null,
+      "explicit_type": null
+    }
+  ],
+  "declared_outputs": {},
+  "extracted": {
+    "recent_transactions": {
+      "type": "table",
+      "columns": {
+        "date": "date",
+        "share": "string",
+        "description": "string",
+        "amount": "money"
+      },
+      "classification": "financial",
+      "target": "table \"TRANSACTION HISTORY\" [main]"
+    }
+  }
+}

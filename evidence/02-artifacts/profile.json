@@ -1,0 +1,156 @@
+{
+  "schema_version": "1.0",
+  "kind": "product_profile",
+  "product": "fakebank-core",
+  "display_name": "FakeBank Core",
+  "version": "3.2.0",
+  "surface": "web",
+  "capability_prefix": "fakebank.member",
+  "entry": {
+    "origin": "http://127.0.0.1:8700",
+    "home_path": "/",
+    "home_screen": "main_menu"
+  },
+  "session": {
+    "login_steps": [
+      { "id": "operator_id", "action": "type", "target": "signon_operator_field", "value": "{{secret:fakebank/operator_id}}", "origin": "author" },
+      { "id": "password", "action": "type", "target": "signon_password_field", "value": "{{secret:fakebank/operator_password}}", "origin": "author" },
+      {
+        "id": "sign_on",
+        "action": "click",
+        "target": "signon_button",
+        "origin": "author",
+        "timeout_ms": 8000,
+        "expect": [
+          { "screen": "main_menu", "then": "continue" },
+          { "screen": "sign_on_error", "then": { "fail": "AUTH_FAILED" } }
+        ]
+      }
+    ]
+  },
+  "global_screens": {
+    "system_notice": {
+      "kind": "interstitial",
+      "description": "Maintenance notice overlay; dismissed and recorded as a recovery",
+      "handler": { "dismiss": "notice_ok_button" },
+      "max_per_run": 2,
+      "match": [ { "dialog_text_contains": "SYSTEM NOTICE" } ]
+    },
+    "supervisor_override": {
+      "kind": "needs_human",
+      "description": "Only a supervisor can complete this; automation escalates",
+      "escalate": "SUPERVISOR_OVERRIDE_REQUIRED",
+      "match": [ { "dialog_text_contains": "SUPERVISOR OVERRIDE" } ]
+    },
+    "session_expired": {
+      "kind": "session_lost",
+      "description": "Session expired; re-login and restart if no irreversible step was attempted",
+      "handler": "relogin_restart",
+      "max_per_run": 1,
+      "match": [ { "heading": "SIGN ON", "frame": "main" } ]
+    },
+    "system_error": {
+      "kind": "app_error",
+      "fail": "APP_ERROR",
+      "match": [ { "text_contains": "SYSTEM ERROR 500", "frame": "main" } ]
+    },
+    "operator_not_authorized": {
+      "kind": "app_error",
+      "fail": "OPERATOR_NOT_AUTHORIZED",
+      "match": [ { "text_contains": "OPERATOR PROFILE NOT AUTHORIZED", "frame": "main" } ]
+    },
+    "loading": {
+      "kind": "transient",
+      "match": [ { "text_contains": "PROCESSING - PLEASE WAIT", "frame": "main" } ]
+    }
+  },
+  "screen_catalog": {
+    "sign_on": { "match": [ { "heading": "SIGN ON", "frame": "main" } ] },
+    "sign_on_error": { "match": [ { "text_contains": "INVALID OPERATOR ID OR PASSWORD", "frame": "main" } ] },
+    "main_menu": { "match": [ { "heading": "MAIN MENU", "frame": "main" } ] },
+    "member_inquiry": { "match": [ { "heading": "MEMBER INQUIRY", "frame": "main" } ] },
+    "member_detail": {
+      "description": "Detail page for the requested member (right-record check)",
+      "match": [
+        { "heading_contains": "MEMBER DETAIL", "frame": "main" },
+        { "heading_contains": "{{member_number}}", "frame": "main" }
+      ]
+    },
+    "member_not_found": {
+      "kind": "outcome",
+      "outcome": "MEMBER_NOT_FOUND",
+      "description": "No member exists with this number.",
+      "may_follow": [ "member_inquiry" ],
+      "match": [ { "text_contains": "NO MEMBER FOUND", "frame": "main" } ]
+    },
+    "invalid_member_number": {
+      "kind": "outcome",
+      "outcome": "INVALID_MEMBER_NUMBER",
+      "description": "The application rejected the member number format; the caller must supply a valid one.",
+      "may_follow": [ "member_inquiry" ],
+      "match": [ { "text_contains": "MEMBER # MUST BE 6-10 DIGITS", "frame": "main" } ]
+    },
+    "access_restricted": {
+      "kind": "outcome",
+      "outcome": "ACCOUNT_RESTRICTED",
+      "description": "The member record is restricted for this operator.",
+      "may_follow": [ "member_inquiry", "member_detail" ],
+      "match": [ { "heading": "RECORD RESTRICTED", "frame": "main" } ]
+    },
+    "member_transactions": {
+      "description": "Transaction history for the requested member",
+      "match": [
+        { "heading_contains": "TRANSACTION HISTORY", "frame": "main" },
+        { "heading_contains": "{{member_number}}", "frame": "main" },
+        { "not": { "text_contains": "NO TRANSACTIONS IN LAST 90 DAYS" }, "frame": "main" }
+      ]
+    },
+    "no_transactions": {
+      "kind": "outcome",
+      "outcome": "NO_TRANSACTIONS",
+      "description": "The member has no transactions in the last 90 days.",
+      "may_follow": [ "member_detail" ],
+      "match": [ { "text_contains": "NO TRANSACTIONS IN LAST 90 DAYS", "frame": "main" } ]
+    }
+  },
+  "test_inputs": {
+    "member_number": {
+      "happy": [ "100377" ],
+      "no_transactions": [ "100512" ],
+      "not_found": [ "999999" ]
+    }
+  },
+  "input_hints": {
+    "member_number": { "classification": "pii", "description": "Credit union member number" }
+  },
+  "shared_targets": {
+    "signon_operator_field": {
+      "description": "OPERATOR ID field on SIGN ON",
+      "locators": [ { "kind": "label", "role": "textbox", "label": "OPERATOR ID", "frame": "main" } ]
+    },
+    "signon_password_field": {
+      "description": "PASSWORD field on SIGN ON",
+      "locators": [ { "kind": "label", "role": "textbox", "label": "PASSWORD", "frame": "main" } ]
+    },
+    "signon_button": {
+      "description": "SIGN ON button",
+      "locators": [ { "kind": "role", "role": "button", "name": "SIGN ON", "frame": "main" } ]
+    },
+    "notice_ok_button": {
+      "description": "OK button on the SYSTEM NOTICE overlay",
+      "locators": [ { "kind": "role", "role": "button", "name": "OK", "within_dialog": "SYSTEM NOTICE", "frame": "main" } ]
+    },
+    "nav_main_menu": {
+      "description": "MAIN MENU link in the navigation frame",
+      "locators": [ { "kind": "role", "role": "link", "name": "MAIN MENU", "frame": "nav" } ]
+    }
+  },
+  "field_classification": [
+    { "match": { "table": "SHARE ACCOUNTS", "column": "BALANCE" }, "classification": "financial" },
+    { "match": { "table": "SHARE ACCOUNTS", "column": "SHARE ID" }, "classification": "financial" },
+    { "match": { "table": "TRANSACTION HISTORY", "column": "AMOUNT" }, "classification": "financial" },
+    { "match": { "heading_contains": "MEMBER DETAIL" }, "part": "after_member_number", "classification": "pii" },
+    { "match": { "section": "MEMBER NOTES" }, "classification": "pii" },
+    { "match": { "section": "TAX ID" }, "classification": "pii" }
+  ]
+}

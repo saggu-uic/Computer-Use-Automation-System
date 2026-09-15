@@ -1,0 +1,39 @@
+{
+  "run_id": "disc_20260915_125440_07e4",
+  "kind": "discovery",
+  "duration_ms": 7635,
+  "llm_usage": {
+    "calls": 5,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "cost_usd": 0.0
+  },
+  "goal": "What is the current regular savings balance for member {{value_1}}?",
+  "status": "completed",
+  "code": null,
+  "message": "Read the member's regular savings balance",
+  "capability_name": "get_savings_balance",
+  "target": "http://127.0.0.1:59621",
+  "product": "fakebank-core",
+  "planner": {
+    "provider": "scripted",
+    "model": "scripted-get-savings-balance"
+  },
+  "inputs": [
+    {
+      "placeholder": "value_1",
+      "kind": "digits",
+      "explicit_name": null,
+      "explicit_type": null
+    }
+  ],
+  "declared_outputs": {},
+  "extracted": {
+    "savings_balance": {
+      "type": "money",
+      "columns": null,
+      "classification": "financial",
+      "target": "cell BALANCE where TYPE=REGULAR SAVINGS in \"SHARE ACCOUNTS\" [main]"
+    }
+  }
+}

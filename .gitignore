@@ -1,0 +1,15 @@
+.venv/
+.cache/
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# Run records are working data. Curated copies live in evidence/.
+runs/
+
+# Local environment files (credentials are never committed)
+.env
+.env.*

@@ -1,0 +1,11 @@
+{
+  "name": "scripted-wire-transfer-not-possible",
+  "goal": "Wire $500 from member 100245 to an external bank account",
+  "steps": [
+    { "tool": "click", "find": { "role": "link", "name": "MAIN MENU", "frame": "nav" }, "why": "Check which functions the application offers" },
+    {
+      "tool": "cannot_complete",
+      "reason": "FakeBank Core offers member inquiry, reports and administration only; there is no wire or external transfer function, so this goal cannot be done in this application."
+    }
+  ]
+}

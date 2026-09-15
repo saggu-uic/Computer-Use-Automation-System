@@ -1,0 +1,25 @@
+fakebank.member.recent_transactions  v1.0.0  [validated]      fakebank-core >=3.0,<4.0 (web)
+
+WHAT IT DOES   Show recent transactions for member {{member_number}}
+NEEDS          member_number  string ^[0-9]+$ (pii)
+RETURNS        recent_transactions  table (financial)  columns: date:date, share:string, description:string, amount:money
+MAY INSTEAD RETURN   MEMBER_NOT_FOUND · INVALID_MEMBER_NUMBER · ACCOUNT_RESTRICTED · NO_TRANSACTIONS
+SIDE EFFECTS   none (idempotent)
+
+STEPS
+  1. Click link "MEMBER INQ" (nav frame)                   expect member_inquiry → continue
+  2. Type {{member_number}} into textbox "MEMBER #" (main frame) expect verify the field kept the value
+  3. Click button "GO" (main frame)                        expect member_detail → continue
+                                                                | member_not_found → MEMBER_NOT_FOUND
+                                                                | invalid_member_number → INVALID_MEMBER_NUMBER
+                                                                | access_restricted → ACCOUNT_RESTRICTED
+  4. Click button "TRANS HIST" (main frame)                expect member_transactions → continue
+                                                                | access_restricted → ACCOUNT_RESTRICTED
+                                                                | no_transactions → NO_TRANSACTIONS
+  5. Read recent_transactions (table) from table "TRANSACTION HISTORY" (main frame)
+
+APP-WIDE HANDLING (profile)   system_notice → interstitial · supervisor_override → needs_human · session_expired → session_lost · system_error → app_error · operator_not_authorized → app_error · loading → transient
+SUCCESS WHEN   on member_transactions AND recent_transactions is valid
+
+ROBUSTNESS     5/5 targets have ≥1 verified durable locator; 2 have ≥2; 0 fragile-only
+PROVENANCE     discovered disc_20260915_125449_1d24 · validated by val_20260915_125457_973e, val_20260915_125458_139d · sha256:e34efd721c6273de
