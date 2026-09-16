@@ -460,4 +460,4 @@ tests/integration/            end-to-end tests against a live FakeBank
 - **The goal lost its dollar amount:** use single quotes around the goal.
 - **Discovery pauses with `>>> INTERVENTION`:** the agent is stuck or asked for help. Open the printed operator page link to take control, or wait: an unanswered intervention expires after 15 minutes and the run ends with `HUMAN_TIMEOUT`.
 - **A replay fails with `PROFILE_MISMATCH`:** `catalog/fakebank-core/profile.json` changed after the capability was compiled, and replay refuses to run against a different profile. Undo the profile change, or run discovery for that goal again so the capability is recompiled against the new profile.
-- **A replay fails with `TARGET_NOT_FOUND` after you changed FakeBank's labels:** the recorded locators no longer match. Re-run discovery for that goal. `REPORT.md` section 4 describes how tenant overlays would handle this in production.
+- **A replay fails with `TARGET_NOT_FOUND` after you changed FakeBank's labels:** the recorded locators no longer match. Re-run discovery for that goal. `REPORT.md` section 4.3 describes how tenant overlays would handle this in production.

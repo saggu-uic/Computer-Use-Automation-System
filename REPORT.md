@@ -23,53 +23,21 @@ The principle behind almost every decision: **the model proposes, code disposes.
 
 ```mermaid
 flowchart TB
-  CLI["rote CLI or calling agent"]
-  OPR["Human operator"]
-  LLM["LLM provider<br/>Claude or Gemini"]
-
-  subgraph learn["Learn once"]
-    DISC["Discovery agent<br/>input detection, tool menu, planner"]
-    COMP["Compiler<br/>run record to capability"]
-    VAL["Validation replays<br/>same input and a different input"]
+  subgraph learn["Learn once: uses the LLM"]
+    G["Goal in plain English"] --> D["LLM drives the app<br/>one action at a time"]
+    D --> C["Compiler saves the run<br/>as a recipe"]
   end
-
-  CAT[("Catalog<br/>product profile and capabilities")]
-
-  subgraph run["Run every time, no model"]
-    REP["Replay engine<br/>steps, screen matcher, bounded recovery"]
+  C --> R[("Recipe catalog")]
+  subgraph run["Run every time: no LLM"]
+    I["Agent asks for a recipe<br/>with inputs"] --> P["Replay the recipe"]
+    P --> O["Result: success,<br/>business outcome or failure"]
   end
-
-  subgraph core["Shared core: one Python process, one asyncio loop"]
-    GW["Action Gateway<br/>control, risk, policy, approval, act, verify, log"]
-    POL["Policy engine<br/>allowlist and risk rules"]
-    BRK["Control broker<br/>who is in control"]
-    REC["Evidence recorder<br/>events, timeline, screenshots"]
-    MASK["Masker<br/>placeholders and tokens"]
-  end
-
-  OPP["Operator page<br/>take control, resume, approve"]
-  SURF["Web surface<br/>Playwright and in-page walker"]
-  APP["FakeBank Core<br/>separate process"]
-
-  CLI -->|"goal and target"| DISC
-  CLI -->|"capability and inputs"| REP
-  DISC <-->|"masked screen, one tool call"| LLM
-  DISC -->|"run record"| COMP
-  COMP --> VAL
-  VAL --> CAT
-  CAT --> REP
-  DISC --> GW
-  REP --> GW
-  GW --> POL
-  GW --> BRK
-  GW --> REC
-  REC --> MASK
-  GW --> SURF
-  SURF <-->|"clicks, typing, reads, network guard"| APP
-  BRK <--> OPP
-  OPR <--> OPP
-  OPR -.->|"same browser window"| SURF
+  R --> P
+  P -.->|"stuck"| H["Human takes over<br/>the same live session"]
+  H -.->|"resume"| P
 ```
+
+Every action, whether the LLM chose it or a recipe replays it, passes through one safety gateway before it touches the application.
 
 | Component | Responsibility | Code |
 |---|---|---|
@@ -305,7 +273,7 @@ The brief notes that these UIs change slowly, so drift is secondary to runtime c
 
 - **Cosmetic change survives.** FakeBank was restyled (colours, spacing, borders; same markup) after the `01a` capability was discovered. The same capability replayed on the new look with identical results for another member, a missing member, a restricted record and a session expiry (`evidence/01a/replay-*`).
 - **Structural change is detected, not guessed.** A renamed label or moved row gives `TARGET_NOT_FOUND` or `TARGET_AMBIGUOUS` with the locator reasons; a missing row gives the declared outcome.
-- **Early warning.** `LOCATOR_FALLBACK_USED` means the primary locator stopped working while a lower-ranked one still did. Section 4 describes how these signals would drive tenant-level drift management.
+- **Early warning.** `LOCATOR_FALLBACK_USED` means the primary locator stopped working while a lower-ranked one still did. Section 4.4 describes how these signals would drive tenant-level drift management.
 
 ### 3.7 Trade-offs
 
@@ -323,95 +291,228 @@ The brief notes that these UIs change slowly, so drift is secondary to runtime c
 
 ## 4. Heterogeneity & multi-tenant
 
-### 4.1 The surface seam
+### Design for heterogeneity and scale
 
-The split is between **what the flow means** and **how a surface is perceived and acted on**.
+This section answers the brief's section 3.7 question by question: how the artifact schema and replay engine extend to legacy web and desktop surfaces, what the seam is between perceiving a surface and the recorded flow, how one artifact is reused or safely specialised across tenants running the same app, and how per-tenant and per-version drift is detected and managed. Only the legacy web surface is built. Anything marked **designed** is not implemented, and 4.5 lists exactly what exists today.
 
-| Surface-neutral (the recorded flow) | Surface-specific (the adapter) |
+### 4.1 What the design has to handle
+
+| Reality | What it means for the design |
 |---|---|
-| Contract: inputs, outputs, outcomes, side effects | How elements are enumerated (DOM walker, UI Automation tree, terminal field buffer, OCR) |
-| Steps: click, type, select, extract, dialog handling | How an element is resolved from a locator |
-| Screen predicates: headings, text, dialogs, roles | Which locator kinds exist beyond the shared ones |
-| Risk declarations, success condition, timeouts | How to wait (actionability, keyboard unlock, pixel stability) |
-| Masking, policy, handoff, evidence | How to take and mask screenshots; how a human reaches the session |
+| Different kinds of surface: modern web, legacy web (framesets, layout tables, no test IDs), native desktop apps and, in banking, often mainframe terminals | The recorded flow must not depend on how a screen is read or clicked |
+| Hundreds of tenants running about 20 apps each, many on the same vendor product | A task should be learned once per product, not once per tenant |
+| Tenants configure, brand and upgrade the same product differently | Differences must be small, reviewable patches, and drift must be noticed before callers see failures |
 
-The replay engine, gateway, discovery agent and masker reach the application only through a small set of surface methods: snapshot, probe, resolve a locator, click, fill, select, read text or a table, and take a masked screenshot. `WebSurface` is the only implementation; a desktop or terminal surface would implement the same methods. The boundary exists in code, but it is not yet extracted into a formal abstract interface. FakeBank already exercises the legacy web case: framesets, layout tables, unlabelled inputs, overlays and no test IDs.
+An illustration of why this matters: 300 tenants × 20 apps × 25 tasks is 150,000 recordings if every tenant records its own. If those 6,000 app instances run 40 vendor products, one base recording per product and task is 1,000 recordings, plus small overlays only where a tenant actually differs.
 
-### 4.2 Designed adapters
+### 4.2 Surface abstraction
 
-| Surface | Perception | Locators | Waiting | Handoff |
-|---|---|---|---|---|
-| Modern web | DOM walker (implemented) | `role`, `label`, `table_cell`, `field`, `text` | Actionability plus predicates | Same browser |
-| Legacy web | Same walker; label inference from neighbouring cells, header rows from bold cells, overlays by geometry (implemented) | Same | Same | Same browser |
-| Windows desktop | UI Automation tree (ControlType, Name, AutomationId, Grid and Table patterns) | `role` from ControlType, `label` from LabeledBy or neighbours, `table_cell` from Grid patterns | UIA events plus predicates | Remote desktop session shared with the operator |
-| Mainframe terminal (3270/5250) | Emulator field buffer | `field_at(row, col)`, protected label fields as `label` | Keyboard unlock | Shared emulator session |
-| Pixel-only remote desktop | OCR with anchors | Text anchors plus relative offsets | Pixel stability | Shared session; more escalation by design |
+#### 4.2.1 The seam: "how we perceive and act" versus "the recorded flow"
 
-Terminals matter because many core banking systems still run on them, and they are more deterministic than the web: fixed fields and an explicit "ready" signal.
+Every automation is split into two halves. Everything above the surface methods is the same on every kind of application; only the adapter underneath changes.
 
-### 4.3 Reuse across tenants running the same product
+| The recorded flow (surface-neutral) | Perceiving and acting (the surface adapter) |
+|---|---|
+| **What** to do: the contract (inputs, outputs, outcomes), the ordered steps (`click`, `type`, `select`, `extract`, …), the expected screens, risk and the success condition | **How** to do it on this surface: list the elements on screen, resolve a locator to exactly one element, click or type, read text or a table, wait until ready, take and mask a screenshot |
+| Written in accessibility terms every surface has: roles ("button", "textbox"), names, labels, tables, dialogs and headings | Knows the technology: DOM and frames on the web, the UI Automation tree on Windows, the field buffer on a terminal, pixels and OCR on a remote desktop |
+| Stored in the capability JSON | Lives in code, one implementation per surface |
 
-```mermaid
-flowchart TB
-  IF["Interface<br/>member.get_savings_balance: inputs, outputs, outcomes"]
-  BASE1["Base capability<br/>vendor product A, versions 3.x"]
-  BASE2["Base capability<br/>vendor product B"]
-  OV1["Tenant overlay<br/>credit union 1"]
-  OV2["Tenant overlay<br/>credit union 2"]
-  T3["Credit union 3<br/>no overlay needed"]
-  IF --> BASE1
-  IF --> BASE2
-  BASE1 --> OV1
-  BASE1 --> OV2
-  BASE1 --> T3
+The line between the halves is a small set of methods that the rest of Rote calls:
+
+| Method group | Methods on `WebSurface` today | What a Windows desktop adapter would do |
+|---|---|---|
+| Perceive | `snapshot`, `stable_snapshot`, `probe` | Walk the UI Automation tree and return the same roles, names, labels, tables and dialogs |
+| Locate | `resolve`, `locator_candidates`, `element_for_ref` | Resolve `role`, `label`, `table_cell` and `automation_id` locators against the tree and verify exactly one match |
+| Act | `goto`, `click`, `fill`, `select`, `set_checked`, `press`, `accept_dialog`, `dismiss_dialog` | Use the Invoke, Value and SelectionItem patterns, keyboard input, and launch or focus the application window |
+| Read | `read_text`, `read_table`, `element_facts` | Use the Value, Text, Grid and Table patterns |
+| Evidence and control | `screenshot`, `set_block` | Capture the window with masking rectangles; show an "automation in control" indicator |
+
+Everything above the line (discovery agent, compiler, replay engine, gateway, policy, control broker, masker, evidence recorder) works on the same snapshot model and the same capability file whatever the surface.
+
+**Honest caveat.** The boundary exists in code but is not yet extracted into a formal interface, and it leaks in two places: the Action Gateway passes Playwright element handles through, and the replay engine catches Playwright's error type. No code outside the surface package calls a Playwright method on those handles; they are only passed along. Before a second surface is added, they become opaque handles and a surface-neutral error behind an extracted `Surface` protocol.
+
+#### 4.2.2 How the artifact schema extends
+
+Most of a capability file is identical on every surface. Only the parts in the lower half of this table change:
+
+| Part of the capability | Changes per surface? | Notes |
+|---|---|---|
+| `contract`: inputs, outputs, outcomes, side effects | No | Callers never see which surface was used |
+| `steps`: action, target name, expected screens, risk, value verification | No | The actions are the same verbs everywhere |
+| `screens`: heading, text, dialog and role predicates | No | Every surface has titles, text and dialogs |
+| `success`, `timeouts`, `provenance` | No | |
+| `app.surface` | Yes | Today only `"web"`; would add `"desktop"`, `"terminal"` and `"pixel"` |
+| Locator **scope** | Yes | A `frame` on the web, a `window` on desktop, a terminal `screen` |
+| Locator **kinds** | Partly | `role`, `label`, `table_cell`, `field` and `text` are shared; each surface adds its own, such as `automation_id` on desktop, `field_at` on a terminal and `ocr_anchor` on pixels; `css` exists only on the web |
+
+The same "type the member number" step on three surfaces:
+
+```jsonc
+// The step is identical everywhere
+{ "id": "enter_member_number", "action": "type", "target": "member_number_field",
+  "value": "{{member_number}}", "verify": "value_matches" }
+
+// Web (built): FakeBank's unlabelled input, found by the text in the neighbouring table cell
+"member_number_field": { "locators": [
+  { "kind": "label", "role": "textbox", "label": "MEMBER #", "frame": "main" },
+  { "kind": "css", "value": "form[name=\"F12\"] > … > input[name=\"F0031\"]", "fragile": true } ] }
+
+// Windows desktop (designed)
+"member_number_field": { "locators": [
+  { "kind": "automation_id", "value": "txtMemberNo", "window": "Member Inquiry" },
+  { "kind": "label", "role": "textbox", "label": "Member #", "window": "Member Inquiry" } ] }
+
+// Mainframe terminal (designed)
+"member_number_field": { "locators": [
+  { "kind": "label", "role": "textbox", "label": "MEMBER #", "screen": "MBRINQ" },
+  { "kind": "field_at", "row": 6, "col": 22, "screen": "MBRINQ" } ] }
 ```
 
-- **Agents bind to an interface**, such as `member.get_savings_balance`, not to a product. Each vendor product implements it with a base capability.
-- **One base capability per product and version range**, discovered once against a reference tenant.
-- **A tenant overlay is a small, bounded patch:**
+#### 4.2.3 How the replay engine extends
 
-| An overlay may change | An overlay may never change |
+The replay loop is already written against the snapshot model and the methods above, so a new surface does not change the loop:
+
+1. **Reused as it is:** input pre-flight, sign-on (sign-on is just steps in the product profile), steps, screen matching, bounded recovery, business outcomes, human handoff, masking and evidence.
+2. **Waiting stays condition-based; only the readiness signal changes.** Web: element actionability and screen predicates. Desktop: UI Automation events and the window no longer being busy. Terminal: the keyboard-unlock signal after the screen is sent. Pixels: the screen staying unchanged for a short time.
+3. **Handoff uses the same control state machine.** Only the way the human reaches the session changes: the same browser window on the web, a shared remote-desktop or emulator session elsewhere.
+4. **Masking works the same way.** Sensitive values are identified from the snapshot, and each adapter supplies the rectangles to black out in its screenshots.
+
+#### 4.2.4 Legacy web and desktop in particular
+
+| Surface | Status | How elements are found | Special handling |
+|---|---|---|---|
+| Modern web | Built (same walker) | Roles, accessible names, `<label>` elements | None needed |
+| **Legacy web** | **Built, and exercised by FakeBank** | Rote's own in-page walker, because Playwright's built-in snapshot missed these cases | Labels inferred from the neighbouring table cell; header rows detected from bold cells; label–value rows such as MEMBER SINCE and its date; full-screen overlays recognised by size and position; every frame of a frameset scanned; no test IDs needed |
+| **Windows desktop** | Designed | UI Automation tree: ControlType becomes the role; Name, AutomationId and LabeledBy give names and labels | Grid and Table patterns become `table_cell`; modal windows become dialogs |
+| Mainframe terminal (3270/5250) | Designed | The emulator's field buffer | Protected fields act as labels and unprotected fields as inputs; very deterministic because screens are fixed and "ready" is signalled explicitly |
+| Pixel-only remote desktop | Designed | OCR with text anchors | The least reliable surface, so more steps escalate to a human by design |
+
+### 4.3 Multi-tenant reuse
+
+#### 4.3.1 Three layers instead of one recording per tenant
+
+| Layer | Status | Contains | How many |
+|---|---|---|---|
+| **Interface** | Designed | Only the contract: `member.get_savings_balance` takes `member_number`, returns `savings_balance`, may return `MEMBER_NOT_FOUND` and so on | One per task |
+| **Base capability** | Built (today's capabilities, plus the product profile) | Contract, steps, targets and screens for one vendor product and version range, e.g. FakeBank Core `>=3.0,<4.0` | One per product version range × task |
+| **Tenant overlay** | Designed | Only what differs for one tenant: a renamed label, a relabelled heading, a longer timeout | Zero or one per tenant × capability; most tenants need none |
+
+Calling agents bind to the **interface**. At run time Rote picks the base capability for the tenant's product and version, then applies that tenant's overlay if there is one.
+
+#### 4.3.2 How an overlay is represented (designed)
+
+```jsonc
+{
+  "kind": "tenant_overlay",
+  "schema_version": "1.0",
+  "tenant": "cu-0421",
+  "base": {
+    "capability": "fakebank.member.get_savings_balance@1.1.0",
+    "content_hash": "sha256:…"
+  },
+  "patches": {
+    "targets": {
+      "member_number_field": { "locators": [
+        { "kind": "label", "role": "textbox", "label": "MEMBER NO.", "frame": "main" } ] }
+    },
+    "screens": {
+      "member_detail": { "match": [
+        { "heading_contains": "MEMBER PROFILE", "frame": "main" },
+        { "heading_contains": "{{member_number}}", "frame": "main" } ] }
+    },
+    "timeouts": { "step_default_ms": 12000 }
+  },
+  "provenance": { "conformance_run": "conf_…", "approved_by": "…", "validated_by_runs": [ "val_…", "val_…" ] }
+}
+```
+
+The rules that keep overlays safe:
+
+| Rule | Why |
 |---|---|
-| Locators (a label says "Member No." instead of "MEMBER #") | The contract: inputs, outputs, outcomes |
-| Screen predicates and headings | The step sequence |
-| Display labels and constants (branch codes) | Declared risk of any step |
-| Timeouts | The policy |
+| An overlay may replace named **targets** (locators), **screens** (predicates), display labels and constants, and **timeouts** | These are what tenants actually change through configuration and branding |
+| An overlay may **never** change the contract, add, remove or reorder steps, or change a step's risk; the overlay schema simply has no fields for them | A caller's expectations and the safety review of the base must hold for every tenant |
+| The overlay pins its base by **content hash** | If the base is re-recorded, the overlay becomes stale automatically and the tenant goes back through conformance, instead of old patches being applied to new steps |
+| Patches replace whole named entries rather than merging deeply | A reviewer sees exactly what the tenant's version of a target or screen is |
+| The merged result is validated and hashed like any capability, and every result records both the base hash and the overlay hash | Every run is traceable to exactly what executed |
+| A tenant that needs a different contract, extra steps or different risk gets a separately reviewed **variant capability**, not an overlay | Overlays stay small enough to review in seconds |
 
-  Anything outside the left column is a separately reviewed variant capability, not an overlay.
-- **Resolution order at replay:** tenant overlay, then base capability, then product profile.
+#### 4.3.3 Onboarding a new tenant without re-recording (designed)
 
-### 4.4 Onboarding a tenant
+1. **Identify** the tenant's product and version at sign-on, and select the base capabilities whose version range matches.
+2. **Run conformance:** replay every read-only base capability against the tenant with the tenant's test member. Most pass unchanged.
+3. **Collect failures** with the exact reasons replay already reports: which target was not found, which screen did not match, which step timed out.
+4. **Repair one target at a time:** the LLM is shown that one screen and asked for that one element; code verifies the proposed locator exactly as it verifies discovery locators; the replay is retried.
+5. **Review:** a person approves the resulting overlay, which is typically a few locator or heading changes, and the capabilities become validated for that tenant.
+6. **Validate write capabilities in attended mode first**; irreversible flows are never onboarded unattended.
 
-Onboarding is a **conformance run**, not re-recording:
+The work grows with the number of differences, not with tenants × capabilities.
 
-1. Replay every read-only capability for the product against the tenant, using a tenant test member.
-2. Collect the failing targets and screens with their locator reasons.
-3. For each failing target, run a **bounded assisted repair**: the LLM proposes one element for that one target on that one screen, code verifies the proposal exactly as it verifies discovery locators, and the replay is retried.
-4. A reviewer approves the resulting overlay; the capabilities are marked validated for that tenant.
+### 4.4 Detecting and managing drift
 
-Cost scales with the number of differences, not with tenants × capabilities.
+#### 4.4.1 Kinds of drift
 
-### 4.5 Detecting and managing drift
-
-| Signal | Meaning | Action |
+| Kind | Example | Who it affects |
 |---|---|---|
-| Product version probe at sign-on is outside the capability's range | Upgrade | Route to the matching base capability or block with a clear error |
-| `LOCATOR_FALLBACK_USED` rate rising for a target | Primary locator decaying | Open a repair task before replays start failing |
-| `TARGET_AMBIGUOUS` | The page now has two matching elements | Demote immediately; never guess |
-| Screen predicate near-misses (heading changed slightly) | Screen relabelled | Propose an overlay update |
-| Scheduled canary replays with test members failing | Silent breakage | Demote from unattended to attended |
-| Failure rate per tenant and capability above a threshold | Environment problem or drift | Demote and notify |
+| Vendor version upgrade | Release 4.0 renames MEMBER INQUIRY to MEMBER SEARCH | Every tenant on that product, as each one upgrades |
+| Tenant configuration | One credit union relabels MEMBER # as MEMBER NO. | One tenant |
+| Environment | A new maintenance notice, slower servers at month end | One tenant or everyone, often temporarily |
+| Silent breakage | A target still resolves, but to a different element | Rare, and the most dangerous |
+
+#### 4.4.2 Detecting it
+
+| Signal | Built today? | What it means |
+|---|---|---|
+| `LOCATOR_FALLBACK_USED` warning on a result | Yes | The best locator stopped working and a lower-ranked one was used: early decay |
+| `TARGET_AMBIGUOUS` failure | Yes | Two durable locators now point at different elements, so Rote refuses to guess. This is what catches silent breakage |
+| `TARGET_NOT_FOUND` and `UNEXPECTED_SCREEN`, with locator reasons | Yes | Something moved or was renamed |
+| Step timings and `SLOW_LOAD_WAITED` recoveries | Yes | The environment is slowing down |
+| `PROFILE_MISMATCH` | Yes | The product profile changed since the capability was compiled |
+| Declared product version range (`product_versions`) on every capability | Recorded, not yet checked against the live application | Which versions the recording is valid for |
+| Version probe at sign-on (reading the release shown on screen, such as "FAKEBANK CORE R3.2" in the banner) | Designed | Detects an upgrade before any step runs |
+| Screen-predicate near-misses (a heading that almost matches) | Designed | A screen was relabelled |
+| Scheduled canary replays with test members | Designed | Catches breakage before a real caller does |
+| Aggregation of all signals per tenant × capability | Designed | Turns single warnings into trends |
+
+#### 4.4.3 Managing it
+
+Each tenant × capability pair has a health state (designed):
+
+| State | Entered when | Effect |
+|---|---|---|
+| **Healthy** | Validated, and canaries passing | Runs unattended |
+| **Degraded** | Fallback-locator rate or near-misses rising, or one canary failure | Runs attended only, and a repair task is opened |
+| **Suspended** | `TARGET_AMBIGUOUS`, repeated failures, or an unsupported product version | Refuses to run with a clear failure; callers route the work to a person |
+
+Repair follows the onboarding path: repair one target, review the overlay change, validate, and return to Healthy.
+
+**Vendor upgrades are new base versions, not patches.** Discover the changed flows once against a reference tenant on the new release, publish base capabilities with the new `product_versions` range, then run conformance for each tenant as it upgrades. Tenants still on the old release keep using the old base. Overlays pinned to the old base hash are never carried over silently; conformance decides which differences still apply.
+
+### 4.5 What exists today, so the design does not paint Rote into a corner
+
+| Abstraction | Built today | Still needed for the full design |
+|---|---|---|
+| Surface-neutral contract, steps, screen predicates, outcomes and risk | Yes | Nothing |
+| Snapshot model in accessibility terms (roles, names, labels, tables, dialogs) | Yes | Nothing |
+| Surface method boundary | Yes, implemented by `WebSurface` | Extract a formal `Surface` protocol; replace the Playwright handles and error type that pass through the gateway and replay engine |
+| `app.surface` and locator kinds | Web only | New surface values and surface-specific locator kinds |
+| Product profile per vendor product, with its version and each capability's version range | Yes | A version probe at sign-on |
+| Content hashes for capabilities and profiles | Yes | Overlays pinned to the base hash |
+| Drift signals on every result (fallback, ambiguity, not found, timings) | Yes | Aggregation, canaries and health states |
+| Label normalisation (`Member #:` matches `MEMBER #`) | Yes | Nothing |
+| Interface layer, overlay store and merge, conformance runner, one-target repair | No | Build; see section 7.3, items 3, 4, 7 and 8 |
 
 ### 4.6 Trade-offs
 
 | Decision | Chosen | Over | What it costs |
 |---|---|---|---|
-| Tenant differences | Bounded overlays on a base capability | Full per-tenant copies; an LLM at runtime | Overlay tooling to build; true variants still need separate capabilities |
-| Unit of reuse | Interface → product → tenant | One capability per tenant | Needs product identification at sign-on |
-| Implemented scope | Web surface only; tenants and desktop designed | Building adapters and overlays now | The seam is proven by one surface |
-| Repair | Bounded, verified, reviewed | Automatic self-healing | A human reviews every overlay |
-
-What already exists: surface-neutral capabilities and predicates, the surface method boundary implemented by `WebSurface`, name normalisation that absorbs trivial label differences (`Member #:` versus `MEMBER #`), and fallback and ambiguity signals on every result. The overlay store, conformance runner and drift aggregation are not built.
+| Where surfaces differ | Only locator kinds, locator scope and adapter code | A separate capability format per surface | Every adapter must map its world onto roles, names, labels and tables |
+| Tenant differences | Small overlays pinned to a base capability | A full copy per tenant; an LLM adapting at run time | Overlay tooling to build |
+| Overlay power | Targets, screens, labels, constants and timeouts only | Letting overlays change steps or risk | Some tenants will need a reviewed variant capability |
+| Unit of reuse | Interface → product version → tenant | One capability per tenant | Needs reliable product and version detection |
+| Repair | One element at a time, verified by code, approved by a person | Automatic self-healing | A person reviews every overlay |
+| Vendor upgrades | A new base version per product version range | Patching old bases forward | Changed flows are discovered again |
+| Built scope | Legacy web only; desktop, terminals and tenants designed | Building adapters and tenant plumbing now | The seam is proven on one surface |
 
 ---
 
@@ -454,13 +555,12 @@ The agent also receives feedback before it gets stuck: blocked actions and block
 ```mermaid
 stateDiagram-v2
   [*] --> AUTOMATION
-  AUTOMATION --> WAITING_FOR_HUMAN: stuck, needs-human screen, or approval needed
+  AUTOMATION --> WAITING_FOR_HUMAN: stuck or needs approval
   WAITING_FOR_HUMAN --> HUMAN: operator takes control
-  WAITING_FOR_HUMAN --> AUTOMATION: approved, rejected, aborted or expired
-  HUMAN --> VERIFYING: operator resumes
-  HUMAN --> AUTOMATION: operator aborts
-  VERIFYING --> AUTOMATION: resume expectation met
-  VERIFYING --> WAITING_FOR_HUMAN: expectation not met
+  HUMAN --> VERIFYING: operator clicks resume
+  VERIFYING --> AUTOMATION: screen is as expected
+  VERIFYING --> WAITING_FOR_HUMAN: screen is not as expected
+  WAITING_FOR_HUMAN --> AUTOMATION: approved, rejected or timed out
 ```
 
 - **Enforced, not advisory.** The gateway refuses every automated action unless the broker state is `AUTOMATION`. There is always exactly one answer to "who is in control".
